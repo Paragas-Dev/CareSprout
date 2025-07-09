@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "8378246898",
+    "project_id": "caresprout-71e11",
+    "storage_bucket": "caresprout-71e11.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:8378246898:android:2c3c60753d26a7c996926b",
+        "android_client_info": {
+          "package_name": "com.example.care_sprout"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAePBuMnEG1XBOK_8ifL___W1mpbKVd_84"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

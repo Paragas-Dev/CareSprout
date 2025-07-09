@@ -1,0 +1,262 @@
+body {
+    font-family: 'Comic Sans MS', sans-serif;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    overflow-y: hidden;
+    background: linear-gradient(to top, #d6f5d6, #cceeff);
+    min-height: 100vh;
+  }
+
+  .drop {
+    position: relative;
+    display: inline-block;
+    cursor: pointer;
+    padding: 10px;
+    font-size: 30px;
+  }
+
+  .dropdown-content {
+    display: none;
+    position: absolute;
+    top: 40px;
+    right: 0;
+    background-color: #fff;
+    min-width: 200px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    z-index: 1;
+    border-radius: 8px;
+    padding: 20px;
+    text-align: center;
+  }
+
+  .dropdown-content i {
+    font-size: 40px;
+    margin-bottom: 10px;
+    color: #333;
+  }
+
+  .dropdown-content .username {
+    font-weight: bold;
+    margin-bottom: 5px;
+  }
+
+  .dropdown-content .email {
+    font-size: 14px;
+    color: #555;
+  }
+
+  .drop.active .dropdown-content {
+    display: block;
+  }
+
+  .main-content-wrapper {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    overflow: auto;
+  }
+
+  .main-content {
+    flex: 1;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    min-height: 0;
+  }
+
+  .left-column { grid-column: 1; }
+  .right-column { grid-column: 2; }
+
+  .header {
+    grid-column: 1 / -1;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+
+  .page-title {
+    font-size: 40px;
+    font-weight: bold;
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .approved-container {
+    background-color: #ffffff;
+    padding: 30px;
+    border-radius: 5px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    border: 1px solid #a6d57f;
+    grid-column: 1 / -1;
+    min-height: 750px;
+    height: 60vh;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+  }
+
+  thead tr {
+    border-bottom: 2px solid #ccc;
+    color: #a36a00;
+    text-align: left;
+  }
+
+  th, td {
+    padding: 10px;
+  }
+
+  input[type="text"] {
+    padding: 5px 10px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+  }
+
+  button {
+    padding: 5px 10px;
+    border-radius: 5px;
+    border: none;
+    cursor: pointer;
+  }
+
+  .sidebar {
+    height: 100vh;
+    min-height: 100vh;
+    position: relative;
+    left: 0;
+    top: 0;
+  }
+
+  /* ===== Mobile: 0px - 480px ===== */
+@media (max-width: 480px) {
+
+  body {
+    flex-direction: column;
+    overflow-y: auto;
+  }
+
+  .page-title {
+    font-size: 24px;
+    text-align: center;
+    margin: 0 auto;
+  }
+
+  .main-content {
+    padding: 10px;
+    gap: 10px;
+  }
+
+  .approved-container {
+    padding: 15px;
+    min-height: auto;
+    height: auto;
+  }
+
+  table {
+    font-size: 12px;
+  }
+
+  th, td {
+    padding: 6px;
+  }
+
+  .dropdown-content {
+    min-width: 150px;
+    padding: 15px;
+  }
+
+  .dropdown-content i {
+    font-size: 30px;
+  }
+
+  .drop {
+    font-size: 26px;
+  }
+
+  .main-content-wrapper {
+    flex: 1;
+  }
+
+  .header {
+    flex-direction: column;
+    gap: 10px;
+    align-items: flex-start;
+  }
+
+  input[type="text"] {
+    width: 100%;
+    box-sizing: border-box;
+  }
+}
+
+/* ===== Tablet: 481px - 768px ===== */
+@media (max-width: 768px) {
+
+  .page-title {
+    font-size: 30px;
+  }
+
+  .main-content {
+    padding: 15px;
+    gap: 15px;
+  }
+
+  .approved-container {
+    padding: 20px;
+    min-height: auto;
+    height: auto;
+  }
+
+  table {
+    font-size: 14px;
+  }
+
+  th, td {
+    padding: 8px;
+  }
+
+  .dropdown-content {
+    min-width: 180px;
+  }
+
+  .dropdown-content i {
+    font-size: 35px;
+  }
+
+  .drop {
+    font-size: 28px;
+  }
+
+  input[type="text"] {
+    width: 100%;
+    box-sizing: border-box;
+  }
+}
+
+/* ===== Desktop small: 769px - 1024px ===== */
+@media (max-width: 1024px) {
+
+  .page-title {
+    font-size: 36px;
+  }
+
+  .main-content {
+    padding: 20px;
+  }
+
+  .approved-container {
+    padding: 25px;
+  }
+
+  table {
+    font-size: 16px;
+  }
+}
