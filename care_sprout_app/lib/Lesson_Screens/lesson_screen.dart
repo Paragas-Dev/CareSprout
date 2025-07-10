@@ -47,9 +47,10 @@ class _LessonScreenState extends State<LessonScreen> {
       debugPrint('Button Clicked!');
       Future.delayed(const Duration(milliseconds: 500), () {
         if (mounted) {
-          Navigator.push(
+          Navigator.pushAndRemoveUntil(
             context,
             MaterialPageRoute(builder: (context) => const SubjectScreen()),
+            (route) => false,
           );
         }
       });
@@ -88,8 +89,8 @@ class _LessonScreenState extends State<LessonScreen> {
                       GestureDetector(
                         onTap: _onTap,
                         child: SizedBox(
-                          width: 50,
-                          height: 50,
+                          width: 40,
+                          height: 40,
                           child: rive.Rive(
                             artboard: artboard!,
                             fit: BoxFit.contain,

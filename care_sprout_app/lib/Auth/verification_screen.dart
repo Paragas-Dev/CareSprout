@@ -55,9 +55,10 @@ class _VerificationScreenState extends State<VerificationScreen> {
       debugPrint('Button Clicked!');
       Future.delayed(const Duration(milliseconds: 300), () {
         if (mounted) {
-          Navigator.pushReplacement(
+          Navigator.pushAndRemoveUntil(
             context,
             MaterialPageRoute(builder: (context) => const Login()),
+            (route) => false,
           );
         }
       });
@@ -133,11 +134,12 @@ class _VerificationScreenState extends State<VerificationScreen> {
     Future.delayed(const Duration(seconds: 4), () {
       if (mounted) {
         Navigator.of(context).pop();
-        Navigator.pushReplacement(
+        Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute(
             builder: (context) => const Login(showApprovalDialog: true),
           ),
+          (route) => false,
         );
       }
     });

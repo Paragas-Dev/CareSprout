@@ -119,8 +119,8 @@ class _SettingsState extends State<Settings> {
                           GestureDetector(
                             onTap: _onTap,
                             child: SizedBox(
-                              width: 50,
-                              height: 50,
+                              width: 40,
+                              height: 40,
                               child: rive.Rive(
                                 artboard: backArtboard!,
                                 fit: BoxFit.contain,

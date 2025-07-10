@@ -43,9 +43,10 @@ class _LessonAchievementState extends State<LessonAchievement> {
       debugPrint('Button Clicked!');
       Future.delayed(const Duration(milliseconds: 500), () {
         if (mounted) {
-          Navigator.push(
+          Navigator.pushAndRemoveUntil(
             context,
             MaterialPageRoute(builder: (context) => const HomeScreen()),
+            (route) => false,
           );
         }
       });
@@ -82,8 +83,8 @@ class _LessonAchievementState extends State<LessonAchievement> {
                       GestureDetector(
                         onTap: _onTap,
                         child: SizedBox(
-                          width: 50,
-                          height: 50,
+                          width: 40,
+                          height: 40,
                           child: rive.Rive(
                             artboard: backArtboard!,
                             fit: BoxFit.contain,

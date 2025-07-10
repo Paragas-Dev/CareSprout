@@ -64,6 +64,8 @@ class _AuthGateState extends State<AuthGate> {
 
               if (user != null && user.emailVerified) {
                 return const HomeScreen();
+              } else if (user == null) {
+                return const Login();
               } else {
                 return const Login();
               }

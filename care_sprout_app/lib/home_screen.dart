@@ -3,7 +3,8 @@
 import 'package:care_sprout/Achievement_Screens/lesson_achievement.dart';
 import 'package:care_sprout/Helper/global_font_size.dart';
 import 'package:care_sprout/Lesson_Screens/lesson_home.dart';
-import 'package:care_sprout/Messaging/home_message.dart';
+import 'package:care_sprout/Messaging/chat_homescreen.dart';
+import 'package:care_sprout/Messaging/chat_message.dart';
 import 'package:care_sprout/profile.dart';
 import 'package:care_sprout/settings.dart';
 import 'package:flutter/material.dart';
@@ -495,7 +496,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                     context,
                                     MaterialPageRoute(
                                         builder: (context) =>
-                                            const HomeMessage()),
+                                            const ChatHomescreen()),
                                   );
                                 }
                               });

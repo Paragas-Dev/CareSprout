@@ -78,9 +78,10 @@ class _LoginState extends State<Login> {
       if (!approved && mounted) {
         _showApprovalDialog();
       } else if (approved && mounted) {
-        Navigator.pushReplacement(
+        Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute(builder: (context) => const HomeScreen()),
+          (route) => false,
         );
       }
     }
@@ -118,9 +119,10 @@ class _LoginState extends State<Login> {
           if (!approved && mounted) {
             _showApprovalDialog();
           } else if (mounted) {
-            Navigator.pushReplacement(
+            Navigator.pushAndRemoveUntil(
               context,
               MaterialPageRoute(builder: (context) => const HomeScreen()),
+              (route) => false,
             );
           }
         }
