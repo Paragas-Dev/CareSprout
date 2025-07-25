@@ -1,15 +1,19 @@
 // ignore_for_file: deprecated_member_use, use_build_context_synchronously
 
+import 'dart:async';
 import 'package:care_sprout/Achievement_Screens/lesson_achievement.dart';
 import 'package:care_sprout/Helper/global_font_size.dart';
 import 'package:care_sprout/Lesson_Screens/lesson_home.dart';
 import 'package:care_sprout/Messaging/chat_homescreen.dart';
-import 'package:care_sprout/Messaging/chat_message.dart';
 import 'package:care_sprout/profile.dart';
 import 'package:care_sprout/settings.dart';
+import 'package:care_sprout/announcements_page.dart';
+import 'package:cloud_firestore/cloud_firestore.dart' as cf;
 import 'package:flutter/material.dart';
 import 'package:rive/rive.dart' as rive;
+import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:care_sprout/Helper/rive_button_loader.dart';
+import 'package:care_sprout/Helper/guest_helper.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -23,6 +27,7 @@ class _HomeScreenState extends State<HomeScreen> {
       gameClick,
       menuClick,
       messageClick,
+      announcementClick,
       achievementClick,
       profileClick,
       settingsClick;
@@ -30,6 +35,7 @@ class _HomeScreenState extends State<HomeScreen> {
       gameController,
       menuController,
       messageController,
+      announcementController,
       achievementController,
       profileController,
       settingsController;
@@ -37,16 +43,73 @@ class _HomeScreenState extends State<HomeScreen> {
       gameArtboard,
       menuArtboard,
       messageArtboard,
+      announcementArtboard,
       achievementArtboard,
       profileArtboard,
       settingsArtboard;
 
   bool _isMenuOpen = false;
+  bool _isGuest = false;
+  final PageController _pageController = PageController();
+  Timer? _autoScrollTimer;
+  int _currentPage = 0;
 
   @override
   void initState() {
     super.initState();
     _loadRiveAssets();
+    _startAutoScroll();
+    _checkGuest();
+  }
+
+  void _checkGuest() async {
+    _isGuest = await isGuestUser();
+    setState(() {});
+  }
+
+  void _showGuestRestrictionDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Guest Access Restricted'),
+        content: const Text('Please sign in to access this feature.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _startAutoScroll() {
+    _autoScrollTimer?.cancel();
+    _autoScrollTimer = Timer.periodic(const Duration(seconds: 6), (timer) {
+      if (!mounted) return;
+      final pageCount = _pageController.positions.isNotEmpty
+          ? _pageController.positions.first.viewportDimension > 0
+              ? _pageController.positions.first.maxScrollExtent ~/
+                      _pageController.positions.first.viewportDimension +
+                  1
+              : 0
+          : 0;
+      if (pageCount == 0) return;
+      _currentPage++;
+      if (_currentPage >= pageCount) _currentPage = 0;
+      _pageController.animateToPage(
+        _currentPage,
+        duration: const Duration(milliseconds: 800),
+        curve: Curves.easeInOut,
+      );
+    });
+  }
+
+  @override
+  void dispose() {
+    _autoScrollTimer?.cancel();
+    _pageController.dispose();
+    super.dispose();
   }
 
   void _onLessonTap() {
@@ -120,6 +183,11 @@ class _HomeScreenState extends State<HomeScreen> {
       stateMachineName: 'Message Menu',
       triggerName: 'Message Click',
     );
+    final announcement = await loadRiveButton(
+      assetPath: 'assets/Rive_Files/announcementmenubtn.riv',
+      stateMachineName: 'Announcement Menu',
+      triggerName: 'Announcement Click',
+    );
     final achievement = await loadRiveButton(
       assetPath: 'assets/Rive_Files/achievementmenubtn.riv',
       stateMachineName: 'Achievement Menu',
@@ -151,6 +219,10 @@ class _HomeScreenState extends State<HomeScreen> {
       messageArtboard = message.artboard;
       messageClick = message.trigger;
       messageController = message.controller;
+
+      announcementArtboard = announcement.artboard;
+      announcementClick = announcement.trigger;
+      announcementController = announcement.controller;
 
       achievementArtboard = achievement.artboard;
       achievementClick = achievement.trigger;
@@ -291,7 +363,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           child: Image.asset(
                             'assets/images/board.png',
                             width: 380,
-                            height: 250,
+                            height: 270,
                             fit: BoxFit.fill,
                           ),
                         ),
@@ -339,7 +411,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         Center(
                           child: Container(
                             width: 350,
-                            height: 220,
+                            height: 240,
                             padding: const EdgeInsets.only(
                                 top: 50.0, left: 16.0, right: 16.0),
                             decoration: BoxDecoration(
@@ -353,33 +425,181 @@ class _HomeScreenState extends State<HomeScreen> {
                                 ),
                               ],
                             ),
-                            child: SingleChildScrollView(
-                              scrollDirection: Axis.horizontal,
-                              child: ValueListenableBuilder<double>(
-                                valueListenable: FontSizeController.fontSize,
-                                builder: (context, fontSize, child) {
-                                  return const Row(
+                            //announcement section
+                            child: _isGuest
+                                ? Column(
                                     children: [
-                                      _AnnouncementCard(
-                                          text:
-                                              'Announcement 1: Lorem ipsum dolor sit amet.'),
-                                      SizedBox(width: 12),
-                                      _AnnouncementCard(
-                                          text:
-                                              'Announcement 2: Consectetur adipiscing elit.'),
-                                      SizedBox(width: 12),
-                                      _AnnouncementCard(
-                                          text:
-                                              'Announcement 3: Sed do eiusmod tempor incididunt.'),
-                                      SizedBox(width: 12),
-                                      _AnnouncementCard(
-                                          text:
-                                              'Announcement 4: More updates coming soon.'),
+                                      SizedBox(
+                                        height: 170,
+                                        child: Center(
+                                          child: Container(
+                                            width: 310,
+                                            height: 170,
+                                            padding: const EdgeInsets.all(12),
+                                            decoration: BoxDecoration(
+                                              color:
+                                                  Colors.black.withOpacity(0.3),
+                                              borderRadius:
+                                                  BorderRadius.circular(12),
+                                              border: Border.all(
+                                                  color: Colors.white30),
+                                            ),
+                                            child: const Center(
+                                              child: Text(
+                                                'Welcome to Care Sprout',
+                                                textAlign: TextAlign.center,
+                                                style: TextStyle(
+                                                  fontSize: 28,
+                                                  fontFamily: 'Luckiest Guy',
+                                                  color: Colors.white,
+                                                  fontWeight: FontWeight.bold,
+                                                  letterSpacing: 1.5,
+                                                  shadows: [
+                                                    Shadow(
+                                                      color: Color(0xFF34732F),
+                                                      offset: Offset(2, 2),
+                                                      blurRadius: 3,
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      const SizedBox(height: 10),
+                                      SmoothPageIndicator(
+                                        controller: _pageController,
+                                        count: 1,
+                                        effect: const WormEffect(
+                                          dotHeight: 8,
+                                          dotWidth: 8,
+                                          activeDotColor: Colors.green,
+                                        ),
+                                      ),
                                     ],
-                                  );
-                                },
-                              ),
-                            ),
+                                  )
+                                : StreamBuilder<cf.QuerySnapshot>(
+                                    stream: cf.FirebaseFirestore.instance
+                                        .collection('announcements')
+                                        .orderBy('createdAt', descending: true)
+                                        .limit(6)
+                                        .snapshots(),
+                                    builder: (context, snapshot) {
+                                      if (!snapshot.hasData) {
+                                        return const Center(
+                                          child: CircularProgressIndicator(),
+                                        );
+                                      }
+                                      final docs = snapshot.data!.docs;
+                                      if (docs.isEmpty) {
+                                        return const Center(
+                                          child: Text("No announcement yet."),
+                                        );
+                                      }
+                                      if (_currentPage >= docs.length) {
+                                        _currentPage = 0;
+                                      }
+                                      _startAutoScroll();
+                                      return Column(
+                                        children: [
+                                          SizedBox(
+                                            height: 170,
+                                            child: PageView.builder(
+                                              controller: _pageController,
+                                              itemCount: docs.length + 1,
+                                              itemBuilder:
+                                                  (BuildContext context,
+                                                      index) {
+                                                if (index == docs.length) {
+                                                  return GestureDetector(
+                                                    onTap: () {
+                                                      Navigator.push(
+                                                        context,
+                                                        MaterialPageRoute(
+                                                          builder: (context) =>
+                                                              const AnnouncementsPage(),
+                                                        ),
+                                                      );
+                                                    },
+                                                    child: Container(
+                                                      width: 310,
+                                                      height: 230,
+                                                      padding:
+                                                          const EdgeInsets.all(
+                                                              12),
+                                                      decoration: BoxDecoration(
+                                                        color: Colors.black
+                                                            .withOpacity(0.3),
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(12),
+                                                        border: Border.all(
+                                                            color:
+                                                                Colors.white30),
+                                                      ),
+                                                      child: const Center(
+                                                        child: Column(
+                                                          mainAxisAlignment:
+                                                              MainAxisAlignment
+                                                                  .center,
+                                                          children: [
+                                                            Icon(
+                                                              Icons
+                                                                  .announcement,
+                                                              color:
+                                                                  Colors.white,
+                                                              size: 40,
+                                                            ),
+                                                            SizedBox(
+                                                                height: 10),
+                                                            Text(
+                                                              'View All\nAnnouncements',
+                                                              textAlign:
+                                                                  TextAlign
+                                                                      .center,
+                                                              style: TextStyle(
+                                                                fontSize: 16,
+                                                                fontFamily:
+                                                                    'Aleo',
+                                                                color: Colors
+                                                                    .white,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .bold,
+                                                              ),
+                                                            ),
+                                                          ],
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  );
+                                                }
+
+                                                final data = docs[index].data()
+                                                    as Map<String, dynamic>;
+                                                final title = data['title'] ??
+                                                    'Announcement';
+                                                final content =
+                                                    data['content'] ?? '';
+                                                return _AnnouncementCard(
+                                                    text: '$title\n$content');
+                                              },
+                                            ),
+                                          ),
+                                          const SizedBox(height: 10),
+                                          SmoothPageIndicator(
+                                            controller: _pageController,
+                                            count: docs.length,
+                                            effect: const WormEffect(
+                                              dotHeight: 8,
+                                              dotWidth: 8,
+                                              activeDotColor: Colors.green,
+                                            ),
+                                          ),
+                                        ],
+                                      );
+                                    }),
                           ),
                         ),
                       ],
@@ -486,7 +706,9 @@ class _HomeScreenState extends State<HomeScreen> {
                         _SidebarRiveButton(
                           artboard: messageArtboard,
                           onTap: () {
-                            if (messageClick != null) {
+                            if (_isGuest) {
+                              _showGuestRestrictionDialog();
+                            } else if (messageClick != null) {
                               messageClick!.fire();
                               debugPrint('Button Clicked!');
                               Future.delayed(const Duration(milliseconds: 300),
@@ -497,6 +719,28 @@ class _HomeScreenState extends State<HomeScreen> {
                                     MaterialPageRoute(
                                         builder: (context) =>
                                             const ChatHomescreen()),
+                                  );
+                                }
+                              });
+                            }
+                          },
+                        ),
+                        _SidebarRiveButton(
+                          artboard: announcementArtboard,
+                          onTap: () {
+                            if (_isGuest) {
+                              _showGuestRestrictionDialog();
+                            } else if (announcementClick != null) {
+                              announcementClick!.fire();
+                              debugPrint('Button Clicked!');
+                              Future.delayed(const Duration(milliseconds: 300),
+                                  () {
+                                if (mounted) {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) =>
+                                            const AnnouncementsPage()),
                                   );
                                 }
                               });
@@ -597,7 +841,7 @@ class _AnnouncementCard extends StatelessWidget {
       child: Text(
         text,
         style: const TextStyle(
-          fontSize: 16,
+          fontSize: 13,
           fontFamily: 'Aleo',
           color: Colors.white,
         ),

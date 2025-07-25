@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:care_sprout/Helper/join_class_service.dart';
 
 class JoinClass extends StatefulWidget {
   const JoinClass({super.key});
@@ -9,6 +10,32 @@ class JoinClass extends StatefulWidget {
 
 class _JoinClassState extends State<JoinClass> {
   final TextEditingController _controller = TextEditingController();
+  final JoinClassService _joinClassService = JoinClassService();
+  bool _isLoading = false;
+
+  void _handleJoinClass() async {
+    setState(() {
+      _isLoading = true;
+    });
+    try {
+      final message = await _joinClassService.joinClassByCode(_controller.text);
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(message)),
+      );
+      Navigator.of(context).pop(true);
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(e.toString().replaceFirst('Exception: ', ''))),
+      );
+    } finally {
+      if (mounted)
+        setState(() {
+          _isLoading = false;
+        });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -38,8 +65,7 @@ class _JoinClassState extends State<JoinClass> {
               Container(
                 decoration: const BoxDecoration(
                   color: Color(0xFFCCE6A6),
-                  borderRadius:
-                      BorderRadius.vertical(top: Radius.circular(20)),
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
                 ),
                 padding:
                     const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -71,13 +97,19 @@ class _JoinClassState extends State<JoinClass> {
                           borderRadius: BorderRadius.circular(6),
                         ),
                       ),
-                      onPressed: () {
-                      },
-                      child: const Text(
-                        "JOIN",
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold, fontFamily: 'Aleo'),
-                      ),
+                      onPressed: _isLoading ? null : _handleJoinClass,
+                      child: _isLoading
+                          ? const SizedBox(
+                              width: 18,
+                              height: 18,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            )
+                          : const Text(
+                              "JOIN",
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontFamily: 'Aleo'),
+                            ),
                     ),
                   ],
                 ),

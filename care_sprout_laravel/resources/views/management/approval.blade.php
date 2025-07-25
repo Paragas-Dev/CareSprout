@@ -20,18 +20,19 @@
     </div>
     <div class="main-content">
       <div class="approved-container">
-          <div class="table-controls">
-            <input type="text" id="searchInput" placeholder="🔍 Search users...">
-            <select id="statusFilter">
-              <option value="">All Status</option>
-              <option value="pending">Pending</option>
-              <option value="approved">Approved</option>
-              <option value="rejected">Rejected</option>
-            </select>
-          </div>
+        <div class="table-controls">
+          <input type="text" id="searchInput" placeholder="🔍 Search users...">
+          <select id="statusFilter">
+            <option value="">All Status</option>
+            <option value="pending">Pending</option>
+            <option value="approved">Approved</option>
+            <option value="rejected">Rejected</option>
+          </select>
+        </div>
         <table>
           <thead>
             <tr>
+              <th>LRN</th>
               <th>Student Name</th>
               <th>Disabilities <i class="fas fa-caret-down"></i></th>
               <th>Parent Name</th>
@@ -43,6 +44,7 @@
             <!-- Data will be populated by JavaScript -->
           </tbody>
         </table>
+        <div id="pagination-controls" class="pagination-controls"></div>
         <div id="loadingMessage" style="text-align: center; padding: 20px; display: none;">
           <i class="fas fa-spinner fa-spin"></i> Loading users...
         </div>
@@ -53,131 +55,160 @@
     </div>
   </div>
 
-  <!-- Centralized Firebase Configuration -->
   <script src="{{ asset('js/firebase-config.js') }}"></script>
-
   <script>
-    // Wait for Firebase to be ready
-    window.addEventListener('firebaseReady', function() {
-      const db = window.db;
-      
-      // Load users from Firestore
-      function loadPendingUsers() {
+    document.addEventListener('DOMContentLoaded', function() {
+      const tableBody = document.getElementById('studentTable');
       const loadingMessage = document.getElementById('loadingMessage');
       const noDataMessage = document.getElementById('noDataMessage');
-      const studentTable = document.getElementById('studentTable');
-      
-      loadingMessage.style.display = 'block';
-      studentTable.innerHTML = '';
-      noDataMessage.style.display = 'none';
+      const searchInput = document.getElementById('searchInput');
+      const statusFilter = document.getElementById('statusFilter');
+      let allUsers = [];
+      let currentPage = 1;
+      const rowsPerPage = 10;
 
-      db.collection('users')
-        .where('approved', '==', false)
-        .get()
-        .then((querySnapshot) => {
-          const users = [];
+      window.addEventListener('firebaseReady', async () => {
+        console.log('Firebase ready event fired!');
+        loadingMessage.style.display = 'block';
+        try {
+          const snapshot = await db.collection('users').get();
+          allUsers = snapshot.docs.map(doc => ({
+            id: doc.id,
+            ...doc.data()
+          }));
+          renderTable();
+        } catch (error) {
+          console.error('Error loading users:', error);
+          noDataMessage.style.display = 'block';
+        } finally {
+          loadingMessage.style.display = 'none';
+        }
+      });
 
-          querySnapshot.forEach((doc) => {
-            const data = doc.data();
-            users.push({
-              id: doc.id,
-              userName: data.userName || 'N/A',
-              disabilities: data.disability || 'None',
-              parentName: data.parentName || 'N/A',
-              approved: data.approved ?? false,
-            });
-          });
-          
-          
-          if (users.length > 0) {
-            displayUsers(users);
-          } else {
-            noDataMessage.style.display = 'block';
+      function renderTable() {
+        const search = searchInput.value.toLowerCase();
+        const filterStatus = statusFilter.value;
+
+        const filtered = allUsers.filter(user => {
+          const matchSearch = (
+            user.userName?.toLowerCase().includes(search) ||
+            user.LRN?.toLowerCase().includes(search) ||
+            user.parentName?.toLowerCase().includes(search)
+          );
+
+          const matchStatus = filterStatus ? user.status === filterStatus : true;
+
+          return matchSearch && matchStatus;
+        });
+
+        tableBody.innerHTML = '';
+
+        if (filtered.length === 0) {
+          noDataMessage.style.display = 'block';
+          document.getElementById('pagination-controls').innerHTML = '';
+          return;
+        } else {
+          noDataMessage.style.display = 'none';
+        }
+
+        // Pagination logic
+        const totalPages = Math.ceil(filtered.length / rowsPerPage);
+        if (currentPage > totalPages) currentPage = totalPages || 1;
+        const startIdx = (currentPage - 1) * rowsPerPage;
+        const endIdx = startIdx + rowsPerPage;
+        const pageUsers = filtered.slice(startIdx, endIdx);
+
+        pageUsers.forEach(user => {
+          const row = document.createElement('tr');
+          // Status badge
+          let statusClass = 'status-pending';
+          let statusText = 'Pending';
+          if (user.status === 'approved') {
+            statusClass = 'status-approved';
+            statusText = 'Approved';
+          } else if (user.status === 'rejected') {
+            statusClass = 'status-rejected';
+            statusText = 'Rejected';
+          }
+          // Action buttons
+          const isApproved = user.status === 'approved';
+          const approveBtn = `<button class="btn-approve" onclick="updateStatus('${user.id}', 'approved')"${isApproved ? ' disabled' : ''}>Approve</button>`;
+          const rejectBtn = `<button class="btn-reject" onclick="updateStatus('${user.id}', 'rejected')"${isApproved ? ' disabled' : ''}>Reject</button>`;
+          row.innerHTML = `
+            <td>${user.LRN || '-'}</td>
+            <td>${user.userName || '-'}</td>
+            <td>${user.disability || '-'}</td>
+            <td>${user.parentName || '-'}</td>
+            <td><span class="status-badge ${statusClass}">${statusText}</span></td>
+            <td>
+              ${approveBtn}
+              ${rejectBtn}
+            </td>
+          `;
+          tableBody.appendChild(row);
+        });
+
+        const numEmptyRows = rowsPerPage - pageUsers.length;
+        for (let i = 0; i < numEmptyRows; i++) {
+          const emptyRow = document.createElement('tr');
+          emptyRow.innerHTML = '<td>&nbsp;</td><td></td><td></td><td></td><td></td><td></td>';
+          tableBody.appendChild(emptyRow);
+        }
+
+        // Pagination controls
+        const pagination = document.getElementById('pagination-controls');
+        pagination.innerHTML = '';
+        if (totalPages > 1) {
+
+          const leftArrow = document.createElement('button');
+          leftArrow.textContent = '<';
+          leftArrow.disabled = currentPage === 1;
+          leftArrow.className = 'pagination-arrow';
+          leftArrow.onclick = () => { currentPage--; renderTable(); };
+          pagination.appendChild(leftArrow);
+
+          for (let i = 1; i <= totalPages; i++) {
+            const pageBtn = document.createElement('button');
+            pageBtn.textContent = i;
+            pageBtn.className = 'pagination-page' + (i === currentPage ? ' active' : '');
+            if (i === currentPage) pageBtn.disabled = true;
+            pageBtn.onclick = () => { currentPage = i; renderTable(); };
+            pagination.appendChild(pageBtn);
           }
 
-          loadingMessage.style.display = 'none';
-        })
-        .catch((error) => {
-          console.error("Error fetching users:", error);
-          loadingMessage.style.display = 'none';
-          noDataMessage.style.display = 'block';
-          noDataMessage.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Error loading users';
-        });
-    }
-
-    // Display users in the table
-    function displayUsers(users) {
-      const studentTable = document.getElementById('studentTable');
-      studentTable.innerHTML = '';
-
-      users.forEach(user => {
-        const row = document.createElement('tr');
-        row.innerHTML = `
-          <td>${user.userName}</td>
-          <td>${user.disability}</td>
-          <td>${user.parentName}</td>
-          <td>
-            <span class="status-badge status-pending">Pending</span>
-          </td>
-          <td>
-            <div class="action-buttons">
-              <button class="btn-approve" onclick="updateUserStatus('${user.id}', true)">
-                <i class="fas fa-check"></i> Approve
-              </button>
-              <button class="btn-reject" onclick="updateUserStatus('${user.id}', false)">
-                <i class="fas fa-times"></i> Reject
-              </button>
-            </div>
-          </td>
-        `;
-        studentTable.appendChild(row);
-      });
-    }
-
-    // Update user status
-    function updateUserStatus(userId, approve) {
-      db.collection('users').doc(userId).update({
-        approved: approve,
-        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-      })
-      .then(() => {
-        showNotification(`User ${approve ? 'approved' : 'rejected'} successfully`, 'success');
-        loadPendingUsers(); // Refresh table
-      })
-      .catch((error) => {
-        console.error("Error updating user status:", error);
-        showNotification('Failed to update user status', 'error');
-      });
-    }
-
-    // View user details
-    function viewUserDetails(userId) {
-      const user = allUsers.find(u => u.id === userId);
-      if (user) {
-        alert(`User Details:\nName: ${user.name}\nEmail: ${user.email}\nParent: ${user.parentName}\nStatus: ${user.status}\nDisabilities: ${user.disabilities.join(', ') || 'None'}`);
+          const rightArrow = document.createElement('button');
+          rightArrow.textContent = '>';
+          rightArrow.disabled = currentPage === totalPages;
+          rightArrow.className = 'pagination-arrow';
+          rightArrow.onclick = () => { currentPage++; renderTable(); };
+          pagination.appendChild(rightArrow);
+        }
       }
-    }
 
-    // Show notification
-    function showNotification(message, type) {
-      const notification = document.createElement('div');
-      notification.className = `notification notification-${type}`;
-      notification.innerHTML = `<i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'}"></i> ${message}`;
-      document.body.appendChild(notification);
-      setTimeout(() => notification.remove(), 3000);
-    }
-    document.addEventListener('DOMContentLoaded', function() {
-      loadPendingUsers();
+      // Approve / Reject logic
+      window.updateStatus = async function(userId, newStatus) {
+        try {
+          await db.collection('users').doc(userId).update({ status: newStatus });
+          allUsers = allUsers.map(user => user.id === userId ? { ...user, status: newStatus } : user);
+          renderTable();
+          alert(`User marked as ${newStatus}`);
+        } catch (err) {
+          console.error(`Error updating user status to ${newStatus}:`, err);
+        }
+      }
+
+      searchInput.addEventListener('input', renderTable);
+      statusFilter.addEventListener('change', renderTable);
+      // Reset to first page on search/filter
+      searchInput.addEventListener('input', () => { currentPage = 1; });
+      statusFilter.addEventListener('change', () => { currentPage = 1; });
     });
 
-    function goTo(url) {
-    window.location.href = url;
-    }
+    // Sidebar toggle
     function toggleSidebar(element) {
       const sidebar = document.querySelector('.sidebar');
       sidebar.classList.toggle('open');
 
-      // Toggle the icon between bars and times
       const icon = element.querySelector('i');
       if (sidebar.classList.contains('open')) {
         icon.classList.remove('fa-bars');
@@ -187,7 +218,6 @@
         icon.classList.add('fa-bars');
       }
     }
-  });
   </script>
 </body>
 </html>

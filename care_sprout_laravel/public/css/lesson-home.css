@@ -1,0 +1,91 @@
+body {
+    font-family: 'Comic Sans MS', sans-serif;
+    margin: 0;
+    padding: 0;
+    background: linear-gradient(to top, #d6f5d6, #cceeff);
+    min-height: 100vh;
+}
+
+.main-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.lessons{
+    background: transparent;
+    max-height: calc(100vh - 100px);
+    overflow-y: auto;
+    padding: 10px 10px 50px 10px;
+    border-radius: 20px;
+    margin: 20px 0 50px 0;
+
+}
+
+.lesson-card .card-header {
+    background-color: var(--lesson-color);
+    color: #AD781D;
+    display: flex;
+    height: 80px;
+    justify-content: space-between;
+    align-items: flex-start;
+    font-weight: bold;
+    font-size: 20px;
+    text-decoration: none;
+}
+
+.lesson-card .card-body {
+    height: 150px;
+}
+
+.lesson-card .card-footer {
+    background-color: white;
+    border-top: 1px solid #ddd;
+    padding: 1rem 1rem;
+}
+
+.header-icons, .footer-icons {
+    display: flex;
+    gap: 15px;
+}
+
+.lesson-options-dropdown {
+    position: absolute;
+    background-color: white;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    border-radius: 5px;
+    z-index: 1000;
+    right: 10px;
+    top: 40px;
+    min-width: 150px;
+    display: none;
+}
+.lesson-options-dropdown ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+.lesson-options-dropdown ul li {
+    padding: 10px 15px;
+    cursor: pointer;
+    color: #333;
+    font-size: 15px;
+    border-bottom: 1px solid #eee;
+}
+.lesson-options-dropdown ul li:last-child {
+    border-bottom: none;
+}
+.lesson-options-dropdown ul li:hover {
+    background-color: #f0f0f0;
+}
+.card-header {
+    position: relative;
+}
+.lesson-options-icon {
+    cursor: pointer;
+    padding: 5px;
+}
+
+.footer-icons {
+    justify-content: flex-end;
+}

@@ -18,16 +18,20 @@ class PageController extends Controller
 
     public function approval()
     {
-        // Return empty users array since we're removing Firestore integration
         return view('management.approval');
     }
-    
+
 
     public function leader()
     {
         return view('management.leader');
     }
-    
+
+    public function announcement()
+    {
+        return view('management.announcement');
+    }
+
     public function reports()
     {
         return view('management.reports');
@@ -51,6 +55,16 @@ class PageController extends Controller
     public function mswdDashboard()
     {
         return view('dashboard.mswd');
+    }
+
+    public function settings()
+    {
+        return view('management.settings');
+    }
+
+    public function lessonArchives()
+    {
+        return view('lessons.lesson-archives');
     }
 }
 

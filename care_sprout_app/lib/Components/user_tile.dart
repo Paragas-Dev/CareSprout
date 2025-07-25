@@ -32,7 +32,7 @@ class UserTile extends StatelessWidget {
             const SizedBox(width: 20.0),
             Text(
               text,
-              style: TextStyle(fontFamily: "Aleo", fontWeight: FontWeight.w700),
+              style: const TextStyle(fontFamily: "Aleo", fontWeight: FontWeight.w700),
             ),
           ],
         ),

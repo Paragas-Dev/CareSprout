@@ -11,6 +11,8 @@ import 'package:rive/rive.dart' as rive;
 
 import 'dart:async';
 
+import 'package:shared_preferences/shared_preferences.dart';
+
 class Login extends StatefulWidget {
   final bool showApprovalDialog;
   const Login({super.key, this.showApprovalDialog = false});
@@ -69,21 +71,47 @@ class _LoginState extends State<Login> {
   Future<void> _checkApprovalStatusAndNavigate() async {
     final user = FirebaseAuth.instance.currentUser;
     if (user != null) {
+      if (user.isAnonymous) {
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (context) => const HomeScreen()),
+          (route) => false,
+        );
+        return;
+      }
       final userDoc = await firestore.FirebaseFirestore.instance
           .collection('users')
           .doc(user.uid)
           .get();
-      final approved = userDoc.data()?['approved'] ?? false;
-
-      if (!approved && mounted) {
+      final status = userDoc.data()?['status'] ?? 'pending';
+      if (status != 'approved' && mounted) {
         _showApprovalDialog();
-      } else if (approved && mounted) {
+      } else if (status == 'approved' && mounted) {
         Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute(builder: (context) => const HomeScreen()),
           (route) => false,
         );
       }
+    }
+  }
+
+  //Guest Login
+  void _onGuestLogin() async {
+    try {
+      final UserCredential = await FirebaseAuth.instance.signInAnonymously();
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool('isGuest', true);
+      Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const HomeScreen(),
+          ),
+          (route) => false);
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to sign in as guest: $e')),
+      );
     }
   }
 
@@ -108,15 +136,17 @@ class _LoginState extends State<Login> {
         await FirebaseAuth.instance
             .signInWithEmailAndPassword(email: email, password: password);
 
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setBool('isGuest', false);
+
         final user = FirebaseAuth.instance.currentUser;
         if (user != null) {
           final userDoc = await firestore.FirebaseFirestore.instance
               .collection('users')
               .doc(user.uid)
               .get();
-          final approved = userDoc.data()?['approved'] ?? false;
-
-          if (!approved && mounted) {
+          final status = userDoc.data()?['status'] ?? 'pending';
+          if (status != 'approved' && mounted) {
             _showApprovalDialog();
           } else if (mounted) {
             Navigator.pushAndRemoveUntil(
@@ -548,13 +578,7 @@ class _LoginState extends State<Login> {
                     ),
                     Center(
                       child: OutlinedButton(
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => const HomeScreen()),
-                          );
-                        },
+                        onPressed: _onGuestLogin,
                         style: OutlinedButton.styleFrom(
                           side: const BorderSide(
                               color: Color(0xFFBF8C33), width: 2),

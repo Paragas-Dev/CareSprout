@@ -12,4 +12,4 @@
     </div>
     <script src="{{ asset('js/firebase-config.js') }}"></script>
 </body>
-</html> 
+</html>

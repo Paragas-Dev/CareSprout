@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:care_sprout/Helper/rive_button_loader.dart';
 import 'package:rive/rive.dart' as rive;
 import 'package:care_sprout/Helper/global_font_size.dart';
+import 'package:care_sprout/Helper/guest_helper.dart';
 
 class Settings extends StatefulWidget {
   const Settings({super.key});
@@ -65,24 +66,62 @@ class _SettingsState extends State<Settings> {
   }
 
   void _onLogoutTap() async {
+    bool isGuest = await isGuestUser();
+
+    if (isGuest) {
+      _showGuestWarning();
+    } else {
+      _logout();
+    }
+  }
+
+  Future<void> _logout() async {
     if (logoutClick != null) {
       logoutClick!.fire();
       debugPrint('Button Clicked!');
 
-      await FirebaseAuth.instance.signOut();
-      debugPrint('User signed out from Firebase.');
+      try {
+        await FirebaseAuth.instance.signOut();
+        debugPrint('User signed out from Firebase.');
 
-      Future.delayed(const Duration(milliseconds: 500), () {
-        if (mounted) {
-          Navigator.pushAndRemoveUntil(
-            context,
-            MaterialPageRoute(
-                builder: (context) => const Login(showApprovalDialog: false)),
-            (Route<dynamic> route) => false,
-          );
-        }
-      });
+        if (!mounted) return;
+
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const Login(showApprovalDialog: false),
+          ),
+          (Route<dynamic> route) => false,
+        );
+      } catch (e) {
+        debugPrint('Error signing out: $e');
+      }
     }
+  }
+
+  void _showGuestWarning() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Warning'),
+        content: const Text(
+            'Logging out as a guest will erase all your progress.'
+            'If you want to keep your progress, please coordinate to the administrator to create an account before logging out.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              _logout();
+            },
+            child: const Text('Logout Anyway'),
+          ),
+        ],
+      ),
+    );
   }
 
   @override

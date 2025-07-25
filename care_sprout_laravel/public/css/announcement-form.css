@@ -2,9 +2,9 @@
     background: #fff;
     border-radius: 10px;
     box-shadow: 0 2px 8px #0001;
-    padding: 24px 24px 12px 24px;
+    padding: 24px 0px 12px 0px;
     margin-bottom: 20px;
-    width: 165vh;
+    max-width: 100%;
 }
 
 #new-announcement-form .form-label {
@@ -126,7 +126,6 @@
     cursor: not-allowed;
 }
 
-/* Custom Editor Styles */
 .custom-editor {
   background: #fafbfc;
   border-radius: 8px;
@@ -134,11 +133,11 @@
   box-shadow: none;
   padding: 0;
   margin-bottom: 20px;
-  width: 165vh;
+  max-width: 100%;
 }
 
 .editor-content {
-  min-height: 120px;
+  min-height: 140px;
   padding: 16px;
   font-size: 16px;
   border: none;
@@ -202,17 +201,16 @@
 /* Hide outline on click but keep for keyboard nav */
 .editor-toolbar button:focus:not(:focus-visible) {
   outline: none;
-} 
+}
 
 /* Base styles */
 #new-announcement-form {
   background: #fff;
   border-radius: 10px;
   box-shadow: 0 2px 8px #0001;
-  padding: 24px;
+  padding: 20px;
   margin-bottom: 20px;
-  width: 90%;
-  max-width: 1000px;
+  max-width: 80%;
   margin-left: auto;
   margin-right: auto;
 }
@@ -224,8 +222,7 @@
   box-shadow: none;
   padding: 0;
   margin-bottom: 20px;
-  width: 90%;
-  max-width: 1000px;
+  max-width: 100%;
   margin-left: auto;
   margin-right: auto;
 }
@@ -237,6 +234,7 @@
   #new-announcement-form, .custom-editor {
     width: 90%;
     padding: 20px;
+
   }
 
   #new-announcement-form .form-row,
@@ -265,7 +263,7 @@
     width: 70%;
     padding: 20px;
   }
-  .letters-content {
+  .lessons-content {
     padding: 16px 8px 50px 8px;
   }
 

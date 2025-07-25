@@ -1,0 +1,113 @@
+.people-tab-container {
+    width: 100%;
+    margin-top: 30px;
+  }
+  .people-section {
+    margin-bottom: 40px;
+  }
+  .people-section h3 {
+    font-size: 2em;
+    font-weight: 500;
+    margin-bottom: 0.2em;
+    color: #222;
+  }
+  .people-section hr {
+    border: none;
+    border-top: 2px solid #828282;
+    margin: 18px 0 18px 0;
+  }
+  .teacher-list {
+    margin-bottom: 10px;
+  }
+  .person-row {
+    display: flex;
+    align-items: center;
+    margin-bottom: 12px;
+    padding: 8px 15px;
+    width: 100%;
+    box-sizing: border-box;
+  }
+  .avatar-circle {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: #2196f3;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 1.2em;
+    margin-right: 12px;
+  }
+  .person-name {
+    margin-left: 50px;
+    font-size: 1.1em;
+    flex-grow: 1;
+    font-weight: 500;
+    color: #000;
+  }
+  .add-person-btn {
+    float: right;
+    margin-top: -32px;
+    margin-right: 8px;
+    cursor: pointer;
+    color: #000;
+    font-size: 1.3em;
+    z-index: 10;
+    position: relative;
+  }
+  .people-list{
+    display: flex;
+    flex-direction: column;
+    min-height: 180px;
+    padding: 0 10px;
+  }
+
+.person-options {
+    margin-left: auto;
+    padding: 5px;
+    cursor: pointer;
+    color: #888;
+    font-size: 1.2em;
+    flex-shrink: 0;
+}
+
+.person-options:hover {
+    color: #555;
+}
+
+.empty-state {
+    margin-bottom: 10px;
+    margin-top: 30px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    width: 100%;
+}
+
+.empty-illustration {
+    margin-bottom: 15px;
+}
+
+.empty-text {
+    color: #888;
+    margin-bottom: 8px;
+    font-size: 1.1em;
+}
+
+.invite-btn {
+    background: none;
+    border: none;
+    color: #1976d2;
+    font-size: 1em;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-top: 4px;
+}
+.invite-btn i {
+    font-size: 1.1em;
+}

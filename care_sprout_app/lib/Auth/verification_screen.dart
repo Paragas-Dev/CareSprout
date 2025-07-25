@@ -259,7 +259,7 @@ class _VerificationScreenState extends State<VerificationScreen> {
                                 'Once verified, you can proceed to login.',
                                 textAlign: TextAlign.center,
                                 style: TextStyle(
-                                    fontSize: 14, color: Colors.grey.shade100),
+                                    fontSize: 14, color: Colors.grey.shade500),
                               ),
                             ],
                           ),

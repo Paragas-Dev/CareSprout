@@ -28,13 +28,27 @@ Route::get('/approval', [PageController::class, 'approval'])->name('approval');
 //Leaderboards
 Route::get('/leader', [PageController::class, 'leader'])->name('leader');
 
+//Announcements
+Route::get('/announcement', [PageController::class, 'announcement'])->name('announcement');
+
 //Reports
 Route::get('/reports', [PageController::class, 'reports'])->name('reports');
+
+//Lesson Home
+Route::get('/lessons', function () {
+    return view('lessons.lesson-home');
+})->name('lessons.home');
 
 //Lesson Stream
 Route::get('/lesson-stream/{lessonId}', function ($lessonId) {
     return view('lessons.lesson-stream', ['lessonId' => $lessonId]);
 })->name('lesson-stream');
+
+//Lesson Archives
+Route::get('/lesson-archives', [PageController::class, 'lessonArchives'])->name('lessons.archived');
+
+// Settings
+Route::get('/settings', [PageController::class, 'settings'])->name('settings');
 
 // Create Admin
 Route::get('/create-admin', function () {

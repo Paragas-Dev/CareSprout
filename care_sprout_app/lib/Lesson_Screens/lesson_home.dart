@@ -1,6 +1,7 @@
 // ignore_for_file: unnecessary_const, deprecated_member_use
 
 import 'package:care_sprout/Helper/global_font_size.dart';
+import 'package:care_sprout/Helper/lesson_service.dart';
 import 'package:care_sprout/Lesson_Screens/join_class.dart';
 import 'package:care_sprout/Lesson_Screens/subject_screen.dart';
 import 'package:care_sprout/home_screen.dart';
@@ -21,6 +22,7 @@ class _LessonHomeState extends State<LessonHome> {
   rive.SMITrigger? buttonClick;
   rive.StateMachineController? buttonController;
   rive.Artboard? artboard;
+  final LessonService _lessonService = LessonService();
 
   @override
   void initState() {
@@ -145,22 +147,68 @@ class _LessonHomeState extends State<LessonHome> {
                     color: Color(0xFFBF8C33),
                   ),
                   const SizedBox(height: 16.0),
-                  Center(
-                    child: Column(
-                      children: [
-                        _LessonProgressCard(
-                          title: "LETTERS",
-                          color: const Color(0xFFB3D981),
-                          onTap: () {
-                            Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) =>
-                                        const SubjectScreen()));
-                          },
-                        ),
-                      ],
-                    ),
+                  StreamBuilder<List<Lesson>>(
+                    stream: _lessonService.getLessonsStream(),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const Center(
+                          child: CircularProgressIndicator(
+                            color: Color(0xFFBF8C33),
+                          ),
+                        );
+                      }
+
+                      if (snapshot.hasError) {
+                        return Center(
+                          child: Text(
+                            'Error loading lessons: ${snapshot.error}',
+                            style: const TextStyle(color: Colors.red),
+                          ),
+                        );
+                      }
+
+                      List<Lesson> lessons = snapshot.data ?? [];
+
+                      if (lessons.isEmpty) {
+                        return const Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.school_outlined,
+                                size: 64,
+                                color: Color(0xFFBF8C33),
+                              ),
+                              SizedBox(height: 16),
+                              Text(
+                                'No lessons available',
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  color: Color(0xFFBF8C33),
+                                  fontFamily: 'Aleo',
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      }
+                      return Column(
+                        children: lessons
+                            .map((lesson) => _LessonProgressCard(
+                                  lesson: lesson,
+                                  onTap: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) =>
+                                            SubjectScreen(lessonId: lesson.id),
+                                      ),
+                                    );
+                                  },
+                                ))
+                            .toList(),
+                      );
+                    },
                   ),
                 ],
               ),
@@ -197,13 +245,17 @@ class _LessonHomeState extends State<LessonHome> {
                         'Join Class',
                         style: TextStyle(color: Colors.black),
                       ),
-                      onPressed: () {
-                        Navigator.push(
+                      onPressed: () async {
+                        final joined = await Navigator.push(
                           context,
                           MaterialPageRoute(
                             builder: (context) => const JoinClass(),
                           ),
                         );
+                        if (joined == true) {
+                          Navigator.of(context).pop();
+                          setState(() {});
+                        }
                       },
                     ),
                   ],
@@ -219,13 +271,11 @@ class _LessonHomeState extends State<LessonHome> {
 }
 
 class _LessonProgressCard extends StatelessWidget {
-  final String title;
-  final Color color;
+  final Lesson lesson;
   final VoidCallback? onTap;
 
   const _LessonProgressCard({
-    required this.title,
-    required this.color,
+    required this.lesson,
     this.onTap,
   });
 
@@ -249,7 +299,7 @@ class _LessonProgressCard extends StatelessWidget {
             ),
           ],
         ),
-        margin: const EdgeInsets.symmetric(vertical: 4),
+        margin: const EdgeInsets.symmetric(vertical: 3),
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
           child: Column(
@@ -257,15 +307,13 @@ class _LessonProgressCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Expanded(
                     child: ValueListenableBuilder<double>(
                       valueListenable: FontSizeController.fontSize,
                       builder: (context, fontSize, child) {
                         return Text(
-                          title,
+                          lesson.name,
                           style: TextStyle(
                             fontSize: fontSize,
                             fontFamily: 'Luckiest Guy',
@@ -281,7 +329,7 @@ class _LessonProgressCard extends StatelessWidget {
                             color: Colors.white,
                           ),
                           overflow: TextOverflow.ellipsis,
-                          maxLines: 1,
+                          maxLines: 2,
                         );
                       },
                     ),

@@ -23,7 +23,8 @@ class _ChatMessageState extends State<ChatMessage> {
   rive.SMITrigger? backClick;
   rive.StateMachineController? backController;
   rive.Artboard? backArtboard;
-  bool showLessons = true;
+
+  //instances for the Messages
   final TextEditingController _messageController = TextEditingController();
   final ChatService _chatService = ChatService();
 
@@ -66,7 +67,8 @@ class _ChatMessageState extends State<ChatMessage> {
     // if there is something inside the textfield
     if (_messageController.text.isNotEmpty) {
       //send the message
-      await _chatService.sendMesage(widget.receiverID, _messageController.text);
+      await _chatService.sendMessage(
+          widget.receiverID, _messageController.text);
 
       //clear text controller
       _messageController.clear();
@@ -77,7 +79,7 @@ class _ChatMessageState extends State<ChatMessage> {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-        backgroundColor: Color(0xFFCBE9DF),
+        backgroundColor: const Color(0xFFCBE9DF),
         body: SizedBox(
           width: double.infinity,
           height: double.infinity,
@@ -101,15 +103,28 @@ class _ChatMessageState extends State<ChatMessage> {
                         GestureDetector(
                           onTap: _onTap,
                           child: SizedBox(
-                            width: 40,
-                            height: 40,
+                            width: 30,
+                            height: 30,
                             child: rive.Rive(
                               artboard: backArtboard!,
                               fit: BoxFit.contain,
                             ),
                           ),
                         ),
-                      Text(widget.receiverName),
+                      const CircleAvatar(
+                        child: Icon(
+                          Icons.person,
+                          size: 30.0,
+                        ),
+                      ),
+                      const SizedBox(width: 20.0),
+                      Text(
+                        widget.receiverName,
+                        style: const TextStyle(
+                            fontSize: 15.0,
+                            fontFamily: 'Aleo',
+                            fontWeight: FontWeight.w400),
+                      ),
                     ],
                   ),
                 ),
@@ -157,41 +172,99 @@ class _ChatMessageState extends State<ChatMessage> {
   Widget _buildMessageItem(DocumentSnapshot doc) {
     Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
 
-    return Text(data["message"]);
+    final isCurrentUser =
+        data['senderID'] == FirebaseAuth.instance.currentUser!.uid;
+
+    //alignment/Color/Bubble Style of the messages
+    final alignment =
+        isCurrentUser ? Alignment.centerRight : Alignment.centerLeft;
+    final bubbleColor =
+        isCurrentUser ? const Color(0xFFBF8C33) : const Color(0xFFB4D078);
+    const textColor = Colors.white;
+
+    return Container(
+      alignment: alignment,
+      margin: const EdgeInsets.symmetric(vertical: 6.0, horizontal: 10.0),
+      child: Column(
+        crossAxisAlignment:
+            isCurrentUser ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+        children: [
+          Text(
+            data['senderName'] ?? 'Unknown',
+            style: TextStyle(
+              fontSize: 12.0,
+              fontFamily: 'Aleo',
+              fontWeight:
+                  data['senderID'] == FirebaseAuth.instance.currentUser!.uid
+                      ? FontWeight.bold
+                      : FontWeight.normal,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Container(
+            constraints: const BoxConstraints(maxWidth: 250),
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+            decoration: BoxDecoration(
+              color: bubbleColor,
+              borderRadius: BorderRadius.only(
+                topLeft: const Radius.circular(12),
+                topRight: const Radius.circular(12),
+                bottomLeft:
+                    isCurrentUser ? const Radius.circular(12) : Radius.zero,
+                bottomRight:
+                    isCurrentUser ? Radius.zero : const Radius.circular(12),
+              ),
+            ),
+            child: Text(
+              data['message'],
+              style: const TextStyle(
+                  color: textColor,
+                  fontSize: 15.0,
+                  fontFamily: 'Aleo',
+                  fontWeight: FontWeight.w500),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   Widget _buildUserInput() {
-    return Row(
-      children: [
-        Expanded(
-          child: TextField(
-            controller: _messageController,
-            decoration: InputDecoration(
-              hintText: "Type a message",
-              hintStyle: const TextStyle(color: Colors.grey),
-              filled: true,
-              fillColor: Colors.white,
-              contentPadding: const EdgeInsets.symmetric(horizontal: 16.0),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide.none,
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Row(
+        children: [
+          Expanded(
+            child: TextField(
+              controller: _messageController,
+              decoration: const InputDecoration(
+                hintText: "Type a message",
+                hintStyle: TextStyle(color: Colors.grey),
+                filled: true,
+                fillColor: Colors.white,
+                contentPadding: EdgeInsets.symmetric(horizontal: 16.0),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.all(
+                    Radius.circular(12),
+                  ),
+                  borderSide: BorderSide.none,
+                ),
               ),
             ),
           ),
-        ),
-        const SizedBox(width: 8.0),
-        GestureDetector(
-          onTap: sendMessage,
-          child: Container(
-            padding: const EdgeInsets.all(12.0),
-            decoration: BoxDecoration(
-              color: const Color(0xFFBF8C33),
-              borderRadius: BorderRadius.circular(12),
+          GestureDetector(
+            onTap: sendMessage,
+            child: IconButton(
+              onPressed: sendMessage,
+              icon: Image.asset(
+                "assets/images/sendBtn.png",
+                width: 40,
+                height: 40,
+              ),
             ),
-            child: const Icon(Icons.send, color: Colors.white),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

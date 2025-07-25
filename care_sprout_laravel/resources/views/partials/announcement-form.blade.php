@@ -63,4 +63,4 @@
     form.addEventListener('submit', function(e) {
     document.getElementById('announcement-text').value = editor.innerHTML;
     });
-</script> 
+</script>

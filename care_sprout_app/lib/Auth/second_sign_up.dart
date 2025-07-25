@@ -152,7 +152,7 @@ class _SecondSignUpState extends State<SecondSignUp> {
             'parentName': parentNameController.text.trim(),
             'phone': phoneController.text.trim(),
             'email': email,
-            'approved': false,
+            'status': 'pending',
             'createdAt': DateTime.now().toIso8601String(),
           });
 
@@ -171,7 +171,35 @@ class _SecondSignUpState extends State<SecondSignUp> {
         if (e.code == 'weak-password') {
           errorMessage = 'The password provided is too weak.';
         } else if (e.code == 'email-already-in-use') {
-          errorMessage = 'The account already exists for that email.';
+          // Try to sign in with the provided credentials
+          try {
+            UserCredential userCredential =
+                await _auth.signInWithEmailAndPassword(
+              email: emailController.text.trim(),
+              password: passwordController.text.trim(),
+            );
+            User? user = userCredential.user;
+            if (user != null && !user.emailVerified) {
+              await user.sendEmailVerification();
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                    content: Text(
+                        'Email already registered but not verified. Verification email resent.')),
+              );
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder: (context) =>
+                      VerificationScreen(email: user.email ?? ''),
+                ),
+              );
+              return;
+            } else {
+              errorMessage = 'The account already exists for that email.';
+            }
+          } on FirebaseAuthException catch (signInError) {
+            errorMessage = 'The account already exists for that email.';
+          }
         } else {
           errorMessage = e.message ?? 'An unknown error occurred.';
         }

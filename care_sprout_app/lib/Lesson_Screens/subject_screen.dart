@@ -1,14 +1,15 @@
 // ignore_for_file: deprecated_member_use
-
-import 'package:care_sprout/Helper/global_font_size.dart';
+import 'package:care_sprout/Helper/lesson_service.dart';
 import 'package:care_sprout/Lesson_Screens/lesson_home.dart';
-import 'package:care_sprout/Lesson_Screens/lesson_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:rive/rive.dart' as rive;
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class SubjectScreen extends StatefulWidget {
-  const SubjectScreen({super.key});
+  final String? lessonId;
+  
+  const SubjectScreen({super.key, this.lessonId});
 
   @override
   State<SubjectScreen> createState() => _SubjectScreenState();
@@ -20,6 +21,8 @@ class _SubjectScreenState extends State<SubjectScreen> {
   rive.SMITrigger? buttonClick;
   rive.StateMachineController? buttonController;
   rive.Artboard? artboard;
+  final LessonService _lessonService = LessonService();
+  Lesson? currentLesson;
 
   @override
   void initState() {
@@ -41,7 +44,24 @@ class _SubjectScreenState extends State<SubjectScreen> {
         artboard = back;
       });
     });
+    
+    // Load lesson data if lessonId is provided
+    if (widget.lessonId != null) {
+      _loadLesson();
+    }
+    
     super.initState();
+  }
+
+  Future<void> _loadLesson() async {
+    if (widget.lessonId != null) {
+      final lesson = await _lessonService.getLessonById(widget.lessonId!);
+      if (mounted) {
+        setState(() {
+          currentLesson = lesson;
+        });
+      }
+    }
   }
 
   void _onTap() {
@@ -67,6 +87,8 @@ class _SubjectScreenState extends State<SubjectScreen> {
         child: Stack(
           children: [
             Container(
+              width: double.infinity,
+              height: double.infinity,
               decoration: const BoxDecoration(
                 gradient: LinearGradient(
                   begin: Alignment.topCenter,
@@ -79,108 +101,136 @@ class _SubjectScreenState extends State<SubjectScreen> {
                 ),
               ),
             ),
-            SingleChildScrollView(
-              padding:
-                  const EdgeInsets.symmetric(vertical: 20.0, horizontal: 20.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 20.0, horizontal: 20.0),
+              child: SingleChildScrollView(
+                child: Column(
                 children: [
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      if (artboard != null)
-                        GestureDetector(
-                          onTap: _onTap,
-                          child: SizedBox(
-                            width: 40,
-                            height: 40,
-                            child: rive.Rive(
-                              artboard: artboard!,
-                              fit: BoxFit.contain,
+                    Row(
+                      children: [
+                        if (artboard != null)
+                          GestureDetector(
+                            onTap: _onTap,
+                            child: SizedBox(
+                              width: 40,
+                              height: 40,
+                              child: rive.Rive(
+                                artboard: artboard!,
+                                fit: BoxFit.contain,
+                              ),
+                            ),
+                          ),
+                        Expanded(
+                          child: ShaderMask(
+                            shaderCallback: (Rect bounds) {
+                              return const LinearGradient(
+                                colors: <Color>[
+                                  Color(0xFFB3D981),
+                                  Color(0xFFBF8C33),
+                                ],
+                                begin: Alignment.centerLeft,
+                                end: Alignment.centerRight,
+                              ).createShader(bounds);
+                            },
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(
+                                  currentLesson?.name ?? 'Lesson Title',
+                                  style: const TextStyle(
+                                    fontSize: 40,
+                                    fontFamily: 'Luckiest Guy',
+                                    letterSpacing: 1.5,
+                                    shadows: [
+                                      Shadow(
+                                        color: Color(0xFF34732F),
+                                        offset: Offset(2, 2),
+                                        blurRadius: 3,
+                                      ),
+                                    ],
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
                         ),
-                      const SizedBox(width: 40.0),
-                      Expanded(
-                        child: ShaderMask(
-                          shaderCallback: (Rect bounds) {
-                            return const LinearGradient(
-                              colors: <Color>[
-                                Color(0xFFB3D981),
-                                Color(0xFFBF8C33),
-                              ],
-                              begin: Alignment.centerLeft,
-                              end: Alignment.centerRight,
-                            ).createShader(bounds);
-                          },
-                          child: ValueListenableBuilder<double>(
-                            valueListenable: FontSizeController.fontSize,
-                            builder: (context, fontSize, child) {
-                              return Text(
-                                'Lesson Title',
-                                style: TextStyle(
-                                  fontSize: fontSize,
-                                  fontFamily: 'Aleo',
-                                  letterSpacing: 1.5,
-                                  shadows: const [
-                                    Shadow(
-                                      color: Color(0xFF34732F),
-                                      offset: Offset(2, 2),
-                                      blurRadius: 3,
-                                    ),
-                                  ],
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.white,
-                                ),
-                                overflow: TextOverflow.ellipsis,
-                                maxLines: 1,
-                              );
-                            },
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
+                      ],
+                    ),
                   const SizedBox(height: 8.0),
                   const Divider(
                     thickness: 3,
                     color: Color(0xFFBF8C33),
                   ),
-                  const SizedBox(height: 8),
-                  Column(
-                    children: [
-                      LessonCard(
-                        fileName: "Lesson 1: Introduction to Lines",
-                        progress: 0.15,
-                        showComment: false,
-                        showProgress: false,
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const LessonScreen(),
-                            ),
-                          );
-                        },
-                      ),
-                      const SizedBox(height: 16),
-                      LessonCard(
-                        fileName: "Lesson 2: Introduction to Alphabet",
-                        progress: 0.0,
-                        showComment: false,
-                        showProgress: false,
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const LessonScreen(),
-                            ),
-                          );
-                        },
-                      ),
-                    ],
-                  ),
+                  
+                  // Posts Section
+                  widget.lessonId != null
+                      ? StreamBuilder<List<Post>>(
+                          stream: _lessonService.getPostsStream(widget.lessonId!),
+                          builder: (context, snapshot) {
+                            if (snapshot.connectionState == ConnectionState.waiting) {
+                              return const Center(
+                                child: CircularProgressIndicator(
+                                  color: Color(0xFFBF8C33),
+                                ),
+                              );
+                            }
+
+                            if (snapshot.hasError) {
+                              return Center(
+                                child: Text(
+                                  'Error loading posts: ${snapshot.error}',
+                                  style: const TextStyle(color: Colors.red),
+                                ),
+                              );
+                            }
+
+                            List<Post> posts = snapshot.data ?? [];
+
+                            if (posts.isEmpty) {
+                              return const Center(
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(
+                                      Icons.announcement_outlined,
+                                      size: 64,
+                                      color: Color(0xFFBF8C33),
+                                    ),
+                                    SizedBox(height: 16),
+                                    Text(
+                                      'No announcements yet',
+                                      style: TextStyle(
+                                        fontSize: 18,
+                                        color: Color(0xFFBF8C33),
+                                        fontFamily: 'Aleo',
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            }
+
+                            return ListView.builder(
+                              shrinkWrap: true,
+                              physics: const NeverScrollableScrollPhysics(),
+                              itemCount: posts.length,
+                              itemBuilder: (context, index) {
+                                final post = posts[index];
+                                return PostCard(post: post);
+                              },
+                            );
+                          },
+                        )
+                      : const Center(
+                          child: Text(
+                            'No lesson selected',
+                            style: TextStyle(color: Colors.grey),
+                          ),
+                        ),
                 ],
+              ),
               ),
             ),
           ],
@@ -190,151 +240,107 @@ class _SubjectScreenState extends State<SubjectScreen> {
   }
 }
 
-class LessonCard extends StatelessWidget {
-  final String fileName;
-  final double progress;
-  final bool showComment;
-  final bool showProgress;
-  final VoidCallback? onTap;
+class PostCard extends StatelessWidget {
+  final Post post;
 
-  const LessonCard(
-      {super.key,
-      required this.fileName,
-      required this.progress,
-      this.showProgress = true,
-      this.showComment = false,
-      this.onTap});
+  const PostCard({super.key, required this.post});
 
-  @override
+    @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        height: 120,
-        width: double.infinity,
-        decoration: BoxDecoration(
-          gradient: const LinearGradient(
-            colors: [
-              Color(0xFFB3D981),
-              Color(0xFFBF8C33),
-            ],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-          borderRadius: BorderRadius.circular(12),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.08),
-              blurRadius: 8,
-              offset: const Offset(0, 4),
-            ),
-          ],
+    return Container(
+      height: 150,
+      decoration: const BoxDecoration(
+        image: DecorationImage(
+          image: AssetImage('assets/images/LessonCard.png'),
+          fit: BoxFit.contain,
         ),
-        margin: const EdgeInsets.symmetric(vertical: 4),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              ValueListenableBuilder<double>(
-                valueListenable: FontSizeController.fontSize,
-                builder: (context, fontSize, child) {
-                  return Text(
-                    fileName,
-                    style: TextStyle(
-                      fontSize: fontSize,
-                      fontFamily: 'Aleo',
-                      letterSpacing: 1.5,
-                      shadows: const [
-                        Shadow(
-                          color: Color(0xFF34732F),
-                          offset: Offset(2, 2),
-                          blurRadius: 3,
-                        ),
-                      ],
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
-                    overflow: TextOverflow.ellipsis,
-                    maxLines: 1,
-                  );
-                },
-              ),
-              const SizedBox(height: 20),
-              showProgress
-                  ? Stack(
-                      alignment: Alignment.centerLeft,
-                      children: [
-                        LinearProgressIndicator(
-                          value: progress,
-                          backgroundColor: const Color(0xFFAADDE0),
-                          valueColor: const AlwaysStoppedAnimation<Color>(
-                              Color(0xFFBF8C33)),
-                          minHeight: 18,
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        Positioned.fill(
-                          child: Center(
-                            child: Text(
-                              "${(progress * 100).toInt()}%",
-                              style: const TextStyle(
-                                color: Color(0xFFBF8C33),
-                                fontWeight: FontWeight.bold,
-                                fontSize: 14,
-                                shadows: [
-                                  Shadow(
-                                    color: Colors.white,
-                                    offset: Offset(1, 1),
-                                    blurRadius: 2,
-                                  ),
-                                ],
-                              ),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                 const CircleAvatar(
+                  backgroundColor:  Color(0xFFBF8C33),
+                  child: Icon(
+                    Icons.admin_panel_settings,
+                    color: Colors.white,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        post.name,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                          color: Colors.white,
+                          shadows: [
+                            Shadow(
+                              color: Color(0xFF34732F),
+                              offset: Offset(1, 1),
+                              blurRadius: 2,
                             ),
-                          ),
-                        ),
-                      ],
-                    )
-                  : const SizedBox(height: 18),
-              if (showComment) ...[
-                const SizedBox(height: 16),
-                Row(
-                  children: [
-                    Expanded(
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: const Color(0x33FFFFFF),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 12, vertical: 4),
-                        child: const TextField(
-                          decoration: InputDecoration(
-                            hintText: "Add class comment",
-                            border: InputBorder.none,
-                            isDense: true,
-                          ),
-                          style: TextStyle(color: Color(0xFFBF8C33)),
+                          ],
                         ),
                       ),
-                    ),
-                    const SizedBox(width: 8),
-                    Container(
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFBF8C33),
-                        borderRadius: BorderRadius.circular(8),
+                      Text(
+                        _formatDate(post.createdAt),
+                        style: const TextStyle(
+                          color: Colors.white70,
+                          fontSize: 12,
+                        ),
                       ),
-                      child: IconButton(
-                        icon: const Icon(Icons.send, color: Colors.white),
-                        onPressed: () {},
-                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8.0),
+            Expanded(
+              child: Text(
+                post.text,
+                style: const TextStyle(
+                  fontSize: 14,
+                  height: 1.4,
+                  color: Colors.white,
+                  shadows: [
+                    Shadow(
+                      color: Color(0xFF34732F),
+                      offset: Offset(1, 1),
+                      blurRadius: 2,
                     ),
                   ],
                 ),
-              ],
-            ],
-          ),
+                overflow: TextOverflow.ellipsis,
+                maxLines: 2,
+              ),
+            ),
+          ],
         ),
       ),
     );
+  }
+
+  String _formatDate(Timestamp timestamp) {
+    final date = timestamp.toDate();
+    final now = DateTime.now();
+    final difference = now.difference(date);
+
+    if (difference.inDays > 0) {
+      return '${difference.inDays} day${difference.inDays == 1 ? '' : 's'} ago';
+    } else if (difference.inHours > 0) {
+      return '${difference.inHours} hour${difference.inHours == 1 ? '' : 's'} ago';
+    } else if (difference.inMinutes > 0) {
+      return '${difference.inMinutes} minute${difference.inMinutes == 1 ? '' : 's'} ago';
+    } else {
+      return 'Just now';
+    }
   }
 }

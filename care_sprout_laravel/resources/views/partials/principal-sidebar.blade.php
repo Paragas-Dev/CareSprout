@@ -7,4 +7,4 @@
         <li><a href="/reports">Reports</a></li>
         <li><a href="{{ route('admin.create') }}">Add Admin</a></li>
     </ul>
-</nav> 
+</nav>

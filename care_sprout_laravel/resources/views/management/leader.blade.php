@@ -21,7 +21,7 @@
     <div class="main-content">
       <div class="leaderboard-container">
         <div class="leaderboard-header" style="justify-content: space-between;">
-          <span><i class="fas fa-arrow-left" onclick="goBack()"></i> LEADERBOARD</span>
+          <span>LEADERBOARD</span>
         </div>
         <div class="leaderboard-podium">
           <div class="podium-row podium-row-top">

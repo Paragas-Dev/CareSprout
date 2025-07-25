@@ -1,0 +1,315 @@
+body {
+    font-family: 'Comic Sans MS', sans-serif;
+    margin: 0;
+    padding: 0;
+    background: linear-gradient(to top, #d6f5d6, #cceeff);
+    min-height: 100vh;
+    overflow-y: hidden;
+}
+.announcement-main-container {
+    display: flex;
+    min-height: 100vh;
+    overflow-y: auto;
+    overflow-x: auto;
+}
+
+.announcement-content-wrapper {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.announcement-content-inner {
+    max-width: 100%;
+    margin: 0 auto;
+    padding: 30px 20px 0 20px;
+    min-height: 80vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+}
+
+.announcement-title {
+    color: #AD781D;
+    font-size: 2.2rem;
+    font-family: 'Aleo', serif;
+    margin-bottom: 20px;
+    width: fit-content;
+}
+
+.announcement-list {
+    max-height: 750px;
+    overflow-y: auto;
+    flex: 1 1 auto;
+    scrollbar-width: none;
+}
+
+.announcement-list::-webkit-scrollbar {
+    display: none;
+}
+
+.announcement-card {
+    background: #ffffff5c;
+    box-shadow: 0 2px 8px #0001;
+    padding: 24px 28px;
+    margin-bottom: 15px;
+}
+
+.announcement-card-title {
+    font-size: 1.25rem;
+    font-weight: bold;
+    color: #2d2d6e;
+    margin-bottom: 8px;
+}
+
+.announcement-card-content {
+    color: #444;
+    font-size: 1.05rem;
+    margin-bottom: 18px;
+}
+
+.announcement-card-meta {
+    display: flex;
+    align-items: center;
+    color: #888;
+    font-size: 0.98rem;
+}
+
+.announcement-card-meta i {
+    margin-right: 8px;
+    color: #AD781D;
+}
+
+.announcement-card-meta .meta-separator {
+    margin: 0 12px;
+}
+
+.announcement-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  background: transparent;
+  border: 2px solid #bcb6b6;
+  overflow: hidden;
+  font-family: 'Aleo', serif;
+  margin-top: 10px;
+  margin-bottom: 60px;
+}
+
+.announcement-table th, .announcement-table td {
+  padding: 16px 12px;
+  text-align: center;
+  font-size: 1rem;
+}
+
+.announcement-table thead th {
+  background: #f3eded;
+  color: #888;
+  font-weight: bold;
+  text-align: center;
+  border-bottom: 1.5px solid #e0e0e0;
+}
+
+.announcement-table tbody tr {
+  background: #fff;
+  border-bottom: 1px solid #eaeaea;
+}
+
+.announcement-table tbody tr:last-child {
+  border-bottom: none;
+}
+
+.announcement-table td {
+  color: #333;
+}
+
+.announcement-table td:first-child {
+  font-size: 1.15rem;
+  font-weight: bold;
+  text-align: left;
+  color: #000;
+}
+
+.announcement-table th:first-child, .announcement-table td:first-child {
+  border-top-left-radius: 10px;
+}
+.announcement-table th:last-child, .announcement-table td:last-child {
+  border-top-right-radius: 10px;
+  border-right: none;
+}
+
+.announcement-table tr:last-child td {
+  border-bottom: none;
+}
+
+.announcement-table a.view-announcement-link {
+  color: #2563eb;
+  background: #e8f0fe;
+  border-radius: 5px;
+  padding: 4px 14px;
+  margin-right: 4px;
+  display: inline-block;
+  font-weight: 500;
+  transition: background 0.2s, color 0.2s;
+  text-decoration: none !important;
+}
+
+.announcement-table a.view-announcement-link:hover {
+  background: #c3dafc;
+  color: #1741a6;
+}
+
+.announcement-table a.delete-announcement-link {
+  color: #dc3545;
+  background: #fdeaea;
+  border-radius: 5px;
+  padding: 4px 14px;
+  display: inline-block;
+  font-weight: 500;
+  transition: background 0.2s, color 0.2s;
+  text-decoration: none !important;
+}
+
+.announcement-table a.delete-announcement-link:hover {
+  background: #f8caca;
+  color: #a71d2a;
+}
+
+.announcement-table a.edit-announcement-link {
+  color: #ffc107;
+  background: #ffc10745;
+  border-radius: 5px;
+  padding: 4px 14px;
+  margin-right: 4px;
+  display: inline-block;
+  font-weight: 500;
+  transition: background 0.2s, color 0.2s;
+  text-decoration: none !important;
+}
+
+.announcement-table a.edit-announcement-link:hover {
+  background: #e0a800;
+  color: #fff;
+}
+
+@media (max-width: 700px) {
+  .announcement-table th, .announcement-table td {
+    padding: 10px 6px;
+    font-size: 0.95rem;
+  }
+  .announcement-title {
+    font-size: 1.2rem;
+  }
+}
+
+/* Modal styles for announcement view */
+#announcement-modal-overlay {
+  display: none;
+  position: fixed;
+  top: 0; left: 0;
+  width: 100vw; height: 100vh;
+  background: rgba(0,0,0,0.35);
+  z-index: 1000;
+  justify-content: center;
+  align-items: center;
+}
+#announcement-modal {
+  background: #fff;
+  padding: 32px 28px 24px 28px;
+  border-radius: 12px;
+  max-width: 400px;
+  width: 90vw;
+  box-shadow: 0 8px 32px #0002;
+  position: relative;
+  animation: modalPopIn 0.18s cubic-bezier(.4,1.4,.6,1) 1;
+}
+#close-announcement-modal {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: #888;
+  transition: color 0.2s;
+}
+#close-announcement-modal:hover {
+  color: #dc3545;
+}
+@keyframes modalPopIn {
+  0% { transform: scale(0.85); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+
+/* style for the popup modal for editing announcement */
+#edit-announcement-modal {
+  display: none;
+  background: #fff;
+  padding: 32px 28px 24px 28px;
+  border-radius: 12px;
+  max-width: 400px;
+  width: 90vw;
+  box-shadow: 0 8px 32px #0002;
+  position: relative;
+  animation: modalPopIn 0.18s cubic-bezier(.4,1.4,.6,1) 1;
+}
+#edit-announcement-modal h3 {
+  margin-top: 0;
+  margin-bottom: 12px;
+  font-size: 1.3rem;
+  font-weight: bold;
+  color: #2d2d6e;
+}
+#edit-announcement-modal label {
+  font-weight: bold;
+  margin-bottom: 4px;
+  display: inline-block;
+}
+#edit-announcement-modal form > div {
+  margin-bottom: 14px;
+}
+#edit-announcement-modal input[type="text"],
+#edit-announcement-modal textarea {
+  width: 100%;
+  padding: 8px 10px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-size: 1rem;
+  margin-top: 2px;
+  box-sizing: border-box;
+  resize: vertical;
+}
+#edit-announcement-modal textarea {
+  min-height: 80px;
+}
+#edit-announcement-modal button[type="submit"] {
+  background: #2563eb;
+  color: #fff;
+  padding: 8px 22px;
+  border: none;
+  border-radius: 6px;
+  font-weight: bold;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background 0.2s;
+}
+#edit-announcement-modal button[type="submit"]:hover {
+  background: #1741a6;
+}
+#close-edit-announcement-modal {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: #888;
+  transition: color 0.2s;
+}
+#close-edit-announcement-modal:hover {
+  color: #dc3545;
+}

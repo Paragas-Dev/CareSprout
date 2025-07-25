@@ -1,8 +1,13 @@
+<div class="header-bar">
+    <div class="header-logos">
+      <img src="{{ asset('images/poz.png') }}" alt="Logo 1" class="header-logo" />
+      <img src="{{ asset('images/1.png') }}" alt="Logo 2" class="header-logo" />
+    </div>
 <div class="user-info-bar">
-  <i class="fas fa-bell" style="font-size: 22px; color: #AD781D; margin-right: 20px;"></i>
   <div class="user-dropdown-container">
     <div class="user-info-card" onclick="toggleUserDropdown()">
-      <span class="user-info-avatar"><i class="fas fa-user"></i></span>
+        <i class="fas fa-bell" style="font-size: 22px; color: #AD781D; margin-right: 20px;"></i>
+        <span class="user-info-avatar"><i class="fas fa-user"></i></span>
       <div class="user-info-details">
         <span class="user-info-name" id="user-info-name">Loading...</span>
         <span class="user-info-email" id="user-info-email">Loading...</span>
@@ -27,7 +32,7 @@
 window.addEventListener('firebaseReady', function() {
   const auth = window.auth;
   const db = window.db;
-  
+
   // Function to load user data from Firestore
   function loadUserData() {
     const currentUser = auth.currentUser;
