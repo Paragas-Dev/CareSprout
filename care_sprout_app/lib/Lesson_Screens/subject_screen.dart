@@ -1,6 +1,7 @@
 // ignore_for_file: deprecated_member_use
 import 'package:care_sprout/Helper/lesson_service.dart';
 import 'package:care_sprout/Lesson_Screens/lesson_home.dart';
+import 'package:care_sprout/Lesson_Screens/lesson_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:rive/rive.dart' as rive;
@@ -8,7 +9,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 class SubjectScreen extends StatefulWidget {
   final String? lessonId;
-  
+
   const SubjectScreen({super.key, this.lessonId});
 
   @override
@@ -44,12 +45,12 @@ class _SubjectScreenState extends State<SubjectScreen> {
         artboard = back;
       });
     });
-    
+
     // Load lesson data if lessonId is provided
     if (widget.lessonId != null) {
       _loadLesson();
     }
-    
+
     super.initState();
   }
 
@@ -102,10 +103,11 @@ class _SubjectScreenState extends State<SubjectScreen> {
               ),
             ),
             Padding(
-              padding: const EdgeInsets.symmetric(vertical: 20.0, horizontal: 20.0),
+              padding:
+                  const EdgeInsets.symmetric(vertical: 20.0, horizontal: 20.0),
               child: SingleChildScrollView(
                 child: Column(
-                children: [
+                  children: [
                     Row(
                       children: [
                         if (artboard != null)
@@ -158,79 +160,81 @@ class _SubjectScreenState extends State<SubjectScreen> {
                         ),
                       ],
                     ),
-                  const SizedBox(height: 8.0),
-                  const Divider(
-                    thickness: 3,
-                    color: Color(0xFFBF8C33),
-                  ),
-                  
-                  // Posts Section
-                  widget.lessonId != null
-                      ? StreamBuilder<List<Post>>(
-                          stream: _lessonService.getPostsStream(widget.lessonId!),
-                          builder: (context, snapshot) {
-                            if (snapshot.connectionState == ConnectionState.waiting) {
-                              return const Center(
-                                child: CircularProgressIndicator(
-                                  color: Color(0xFFBF8C33),
-                                ),
-                              );
-                            }
+                    const SizedBox(height: 8.0),
+                    const Divider(
+                      thickness: 3,
+                      color: Color(0xFFBF8C33),
+                    ),
 
-                            if (snapshot.hasError) {
-                              return Center(
-                                child: Text(
-                                  'Error loading posts: ${snapshot.error}',
-                                  style: const TextStyle(color: Colors.red),
-                                ),
-                              );
-                            }
+                    // Posts Section
+                    widget.lessonId != null
+                        ? StreamBuilder<List<Post>>(
+                            stream:
+                                _lessonService.getPostsStream(widget.lessonId!),
+                            builder: (context, snapshot) {
+                              if (snapshot.connectionState ==
+                                  ConnectionState.waiting) {
+                                return const Center(
+                                  child: CircularProgressIndicator(
+                                    color: Color(0xFFBF8C33),
+                                  ),
+                                );
+                              }
 
-                            List<Post> posts = snapshot.data ?? [];
+                              if (snapshot.hasError) {
+                                return Center(
+                                  child: Text(
+                                    'Error loading posts: ${snapshot.error}',
+                                    style: const TextStyle(color: Colors.red),
+                                  ),
+                                );
+                              }
 
-                            if (posts.isEmpty) {
-                              return const Center(
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Icon(
-                                      Icons.announcement_outlined,
-                                      size: 64,
-                                      color: Color(0xFFBF8C33),
-                                    ),
-                                    SizedBox(height: 16),
-                                    Text(
-                                      'No announcements yet',
-                                      style: TextStyle(
-                                        fontSize: 18,
+                              List<Post> posts = snapshot.data ?? [];
+
+                              if (posts.isEmpty) {
+                                return const Center(
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Icon(
+                                        Icons.announcement_outlined,
+                                        size: 64,
                                         color: Color(0xFFBF8C33),
-                                        fontFamily: 'Aleo',
                                       ),
-                                    ),
-                                  ],
-                                ),
-                              );
-                            }
+                                      SizedBox(height: 16),
+                                      Text(
+                                        'No announcements yet',
+                                        style: TextStyle(
+                                          fontSize: 18,
+                                          color: Color(0xFFBF8C33),
+                                          fontFamily: 'Aleo',
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              }
 
-                            return ListView.builder(
-                              shrinkWrap: true,
-                              physics: const NeverScrollableScrollPhysics(),
-                              itemCount: posts.length,
-                              itemBuilder: (context, index) {
-                                final post = posts[index];
-                                return PostCard(post: post);
-                              },
-                            );
-                          },
-                        )
-                      : const Center(
-                          child: Text(
-                            'No lesson selected',
-                            style: TextStyle(color: Colors.grey),
+                              return ListView.builder(
+                                shrinkWrap: true,
+                                physics: const NeverScrollableScrollPhysics(),
+                                itemCount: posts.length,
+                                itemBuilder: (context, index) {
+                                  final post = posts[index];
+                                  return PostCard(post: post, lessonId: widget.lessonId);
+                                },
+                              );
+                            },
+                          )
+                        : const Center(
+                            child: Text(
+                              'No lesson selected',
+                              style: TextStyle(color: Colors.grey),
+                            ),
                           ),
-                        ),
-                ],
-              ),
+                  ],
+                ),
               ),
             ),
           ],
@@ -240,89 +244,105 @@ class _SubjectScreenState extends State<SubjectScreen> {
   }
 }
 
-class PostCard extends StatelessWidget {
+class PostCard extends StatefulWidget {
   final Post post;
+  final String? lessonId;
 
-  const PostCard({super.key, required this.post});
+  const PostCard({super.key, required this.post, required this.lessonId});
 
-    @override
+  @override
+  State<PostCard> createState() => _PostCardState();
+}
+
+class _PostCardState extends State<PostCard> {
+  @override
   Widget build(BuildContext context) {
-    return Container(
-      height: 150,
-      decoration: const BoxDecoration(
-        image: DecorationImage(
-          image: AssetImage('assets/images/LessonCard.png'),
-          fit: BoxFit.contain,
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => LessonScreen(post: widget.post, lessonId: widget.lessonId ?? ''),
+          ),
+        );
+      },
+      child: Container(
+        height: 150,
+        decoration: const BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage('assets/images/LessonCard.png'),
+            fit: BoxFit.contain,
+          ),
         ),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                 const CircleAvatar(
-                  backgroundColor:  Color(0xFFBF8C33),
-                  child: Icon(
-                    Icons.admin_panel_settings,
-                    color: Colors.white,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  const CircleAvatar(
+                    backgroundColor: Color(0xFFBF8C33),
+                    child: Icon(
+                      Icons.admin_panel_settings,
+                      color: Colors.white,
+                    ),
                   ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        post.name,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
-                          color: Colors.white,
-                          shadows: [
-                            Shadow(
-                              color: Color(0xFF34732F),
-                              offset: Offset(1, 1),
-                              blurRadius: 2,
-                            ),
-                          ],
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          widget.post.name,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                            color: Colors.white,
+                            shadows: [
+                              Shadow(
+                                color: Color(0xFF34732F),
+                                offset: Offset(1, 1),
+                                blurRadius: 2,
+                              ),
+                            ],
+                          ),
                         ),
-                      ),
-                      Text(
-                        _formatDate(post.createdAt),
-                        style: const TextStyle(
-                          color: Colors.white70,
-                          fontSize: 12,
+                        Text(
+                          _formatDate(widget.post.createdAt),
+                          style: const TextStyle(
+                            color: Colors.white70,
+                            fontSize: 12,
+                          ),
                         ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8.0),
+              Expanded(
+                child: Text(
+                  widget.post.text,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    height: 1.4,
+                    color: Colors.white,
+                    shadows: [
+                      Shadow(
+                        color: Color(0xFF34732F),
+                        offset: Offset(1, 1),
+                        blurRadius: 2,
                       ),
                     ],
                   ),
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 2,
                 ),
-              ],
-            ),
-            const SizedBox(height: 8.0),
-            Expanded(
-              child: Text(
-                post.text,
-                style: const TextStyle(
-                  fontSize: 14,
-                  height: 1.4,
-                  color: Colors.white,
-                  shadows: [
-                    Shadow(
-                      color: Color(0xFF34732F),
-                      offset: Offset(1, 1),
-                      blurRadius: 2,
-                    ),
-                  ],
-                ),
-                overflow: TextOverflow.ellipsis,
-                maxLines: 2,
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

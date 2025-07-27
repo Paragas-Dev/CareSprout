@@ -1,0 +1,140 @@
+/* Import Google Font */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
+
+body {
+    background: linear-gradient( #AADDE0, #CBE9DF, #EBF3DE);
+    font-family: 'Poppins', sans-serif;
+    color: #333;
+    margin: 0;
+    padding: 0;
+}
+
+/* Main container with green border */
+.container {
+    max-width: 1000px;
+    margin: 2rem auto;
+    padding: 1.5rem;
+    border-radius: 12px;
+}
+
+/* Card style */
+.card {
+    background-color: white;
+    border: 1px solid #488A01;
+    padding: 1.8rem;
+    border-radius: 12px;
+    margin-bottom: 2rem;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+}
+
+/* Section heading */
+h2 {
+    font-size: 1.5rem;
+    color: #AD781D;
+    font-weight: 600;
+    margin-bottom: 1.2rem;
+}
+
+/* Form grid */
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.2rem;
+}
+
+/* Form inputs */
+.form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+input[type="text"],
+input[type="email"],
+input[type="password"],
+select {
+    padding: 0.75rem 1rem;
+    margin-top: 0.3rem;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 1rem;
+    background-color: #fffefb;
+    color: #333;
+}
+
+input:focus,
+select:focus {
+    border-color: #AD781D;
+    outline: none;
+    background-color: #fcfcf7;
+}
+
+/* Custom select dropdown arrow */
+select {
+    appearance: none;
+    background: url("data:image/svg+xml,%3Csvg viewBox='0 0 10 6' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0h10L5 6z' fill='%23488A01'/%3E%3C/svg%3E") no-repeat right 0.8rem center;
+    background-size: 0.6rem;
+    background-color: white;
+}
+
+/* Submit button */
+.form-actions {
+    margin-top: 1.5rem;
+    text-align: right;
+}
+
+button {
+    background-color: #AD781D;
+    color: white;
+    border: none;
+    padding: 0.7rem 1.4rem;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 1rem;
+    transition: background 0.3s ease;
+}
+
+button:hover {
+    background-color: #946015;
+}
+
+/* Table styles */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: #ffffff;
+    border-radius: 8px;
+    overflow: hidden;
+    font-size: 0.95rem;
+}
+
+thead {
+    background-color: #BDFBFF;
+    color: #AD781D;
+}
+
+th, td {
+    padding: 0.9rem 1rem;
+    border-bottom: 1px solid #eee;
+    text-align: left;
+}
+
+tbody tr:hover {
+    background-color: #f9f9f9;
+}
+
+/* Link styles */
+a {
+    color: #AD781D;
+    text-decoration: none;
+    margin: 0 5px;
+    font-weight: bold;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+a.delete {
+    color: #d9534f;
+}

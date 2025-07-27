@@ -72,7 +72,10 @@ class _JoinClassState extends State<JoinClass> {
                 child: Row(
                   children: [
                     GestureDetector(
-                      onTap: () => Navigator.of(context).pop(),
+                      onTap: () {
+                        Navigator.of(context).pop();
+                        Navigator.of(context).pop();
+                      },
                       child: const Icon(Icons.close, color: Color(0xFFB88C33)),
                     ),
                     const SizedBox(width: 12),

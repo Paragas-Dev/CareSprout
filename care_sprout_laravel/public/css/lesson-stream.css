@@ -213,6 +213,188 @@ body {
     background-color: #f0f0f0;
 }
 
+/* Modal */
+.modal-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    display: none;
+}
+
+.modal-backdrop.show {
+    display: block;
+}
+
+#announcement-form-container {
+    display: none;
+    z-index: 998;
+    margin-bottom: 25px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+#announcement-form-container.show {
+    display: block;
+}
+
+#announcement-form-container.modal-mode {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1001;
+    max-width: 700px;
+    width: 90%;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+/* lesson info styles */
+.lesson-title-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    position: relative;
+}
+
+.lesson-info-container {
+    position: relative;
+    display: inline-block;
+    height: 100%;
+    display: flex;
+    align-items: center;
+}
+
+#lesson-info-icon {
+    font-size: 1.2em;
+    color: #2f2f2f;
+    cursor: pointer;
+    transition: color 0.2s ease;
+    padding: 5px;
+}
+
+#lesson-info-icon:hover {
+    color: #1a73e8;
+}
+
+.lesson-info-popup {
+    display: none;
+    position: absolute;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    border-radius: 8px;
+    padding: 5px;
+    top: calc(100% + 10px);
+    right: 0;
+    min-width: 130px;
+    text-align: center;
+    z-index: 10;
+    word-wrap: break-word;
+    white-space: normal;
+    opacity: 0;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.lesson-info-popup.show {
+    display: block;
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+}
+
+.lesson-info-popup p {
+    margin: 0;
+    font-size: 1.1em;
+    color: #333;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.lesson-info-popup .copy-icon {
+    cursor: pointer;
+    color: #1a73e8;
+    font-size: 1.1em;
+    transition: color 0.2s ease;
+}
+
+.lesson-info-popup .copy-icon:hover {
+    color: #1255aa;
+}
+
+.copy-feedback {
+    position: fixed;
+    bottom: 20px;
+    left: 300px;
+    background-color: #333;
+    color: #fff;
+    padding: 10px 15px;
+    border-radius: 5px;
+    font-size: 1.0em;
+    z-index: 1000;
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+    pointer-events: none;
+    white-space: nowrap;
+}
+
+/* comments style */
+
+.comment-item {
+    display: flex;
+    align-items: flex-start;
+    font-size: 0.9em;
+    color: #444;
+    padding: 0 0 0 30px;
+    position: relative;
+}
+.comment-author {
+    font-weight: bold;
+    margin-right: 5px;
+}
+.comment-text {
+    word-wrap: break-word;
+}
+.comment-time {
+    font-size: 0.8em;
+    color: #999;
+    margin-left: 10px;
+}
+.post-footer {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 10px;
+}
+.comment-input {
+    flex-grow: 1;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 20px;
+    font-size: 1em;
+    outline: none;
+}
+.comment-input:focus {
+    border-color: #1a73e8;
+    box-shadow: 0 0 0 2px rgba(26,115,232,0.2);
+}
+.send-comment-btn {
+    font-size: 1.2em;
+    cursor: not-allowed;
+    color: #b0b0b0;
+    transition: color 0.2s ease-in-out;
+}
+.send-comment-btn.active {
+    color: #1a73e8;
+    cursor: pointer;
+}
+
+
 /* Large tablets and small laptops (max-width: 992px) */
 @media screen and (max-width: 992px) {
   .lessons-content {

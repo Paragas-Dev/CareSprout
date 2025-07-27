@@ -1,10 +1,41 @@
-<nav class="sidebar">
-    <ul>
-        <li><a href="/dashboard">Dashboard</a></li>
-        <li><a href="/students">Students</a></li>
-        <li><a href="/teachers">Teachers</a></li>
-        <li><a href="/announcements">Announcements</a></li>
-        <li><a href="/reports">Reports</a></li>
-        <li><a href="{{ route('admin.create') }}">Add Admin</a></li>
-    </ul>
-</nav>
+<!-- Link to Principal Sidebar CSS -->
+<link rel="stylesheet" href="{{ asset('css/principalsidebar.css') }}">
+</head>
+<body>
+
+  <div class="sidebar">
+    <div class="logo">
+      <img src="{{ asset('images/name.png') }}" alt="CareSprout brand logo" />
+    </div>
+
+    <div class="menu-items">
+      <a class="menu-item {{ request()->routeIs('principal') ? 'active' : '' }}" href="{{ route('principal.dashboard') }}">
+        <i class="fas fa-house"></i> Dashboard
+      </a>
+      <a class="menu-item {{ request()->routeIs('students') ? 'active' : '' }}" href="{{ route('students') }}">
+        <i class="fas fa-user-graduate"></i> Students
+      </a>
+      <a class="menu-item {{ request()->routeIs('administrator') ? 'active' : '' }}" href="{{ route('administrator') }}">
+        <i class="fas fa-user-shield"></i> Administrator
+      </a>
+      <a class="menu-item {{ request()->routeIs('approval') ? 'active' : '' }}" href="{{ route('approval') }}">
+        <i class="fas fa-comments"></i> Messages
+      </a>
+      <a class="menu-item {{ request()->routeIs('announcements') ? 'active' : '' }}" href="{{ route('announcements') }}">
+        <i class="fas fa-bullhorn"></i> Announcements
+      </a>
+    </div>
+
+    <div class="bottom-menu-items">
+      <a class="menu-item {{ request()->routeIs('settings') ? 'active' : '' }}" href="{{ route('settings') }}">
+        <i class="fas fa-gear"></i> Settings
+      </a>
+      <a class="menu-item" href="#">
+        <i class="fas fa-right-from-bracket"></i> Logout
+      </a>
+    </div>
+  </div>
+
+  <!-- Firebase (optional, from your original) -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>

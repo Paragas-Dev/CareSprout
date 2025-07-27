@@ -197,7 +197,7 @@ class _SecondSignUpState extends State<SecondSignUp> {
             } else {
               errorMessage = 'The account already exists for that email.';
             }
-          } on FirebaseAuthException catch (signInError) {
+          } on FirebaseAuthException {
             errorMessage = 'The account already exists for that email.';
           }
         } else {

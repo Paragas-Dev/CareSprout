@@ -31,13 +31,22 @@ Route::get('/leader', [PageController::class, 'leader'])->name('leader');
 //Announcements
 Route::get('/announcement', [PageController::class, 'announcement'])->name('announcement');
 
+// announcements
+Route::get('/announcements', [PageController::class, 'announcements'])->name('announcements');
+
 //Reports
 Route::get('/reports', [PageController::class, 'reports'])->name('reports');
+
+// students
+Route::get('/students', [PageController::class, 'students'])->name('students');
 
 //Lesson Home
 Route::get('/lessons', function () {
     return view('lessons.lesson-home');
 })->name('lessons.home');
+
+// administrator
+Route::get('/administrator', [PageController::class, 'administrator'])->name('administrator');
 
 //Lesson Stream
 Route::get('/lesson-stream/{lessonId}', function ($lessonId) {

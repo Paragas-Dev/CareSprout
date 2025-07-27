@@ -240,12 +240,12 @@ class _LessonHomeState extends State<LessonHome> {
                         borderRadius: BorderRadius.circular(2),
                       ),
                     ),
-                    TextButton(
-                      child: const Text(
+                    ListTile(
+                      title: const Text(
                         'Join Class',
                         style: TextStyle(color: Colors.black),
                       ),
-                      onPressed: () async {
+                      onTap: () async {
                         final joined = await Navigator.push(
                           context,
                           MaterialPageRoute(

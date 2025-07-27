@@ -47,6 +47,20 @@ class PageController extends Controller
         return view('dashboard.principal');
     }
 
+    public function announcements()
+    {
+        return view('principal_admin.announcements');
+    }
+
+    public function administrator()
+    {
+        return view('principal_admin.administrator');
+    }
+    public function students()
+    {
+        return view('principal_admin.students');
+    }
+
     public function teacherDashboard()
     {
         return view('dashboard.home');

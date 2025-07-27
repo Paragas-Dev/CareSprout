@@ -32,6 +32,7 @@ class Post {
   final String name;
   final String text;
   final Timestamp createdAt;
+  final List<Attachment> attachments;
 
   Post({
     required this.id,
@@ -39,17 +40,64 @@ class Post {
     required this.name,
     required this.text,
     required this.createdAt,
+    this.attachments = const [],
   });
 
   factory Post.fromFirestore(DocumentSnapshot doc) {
     Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+
+    List<Attachment> parsedAttachments = [];
+    if (data['attachments'] is List) {
+      for (var attachmentMap in data['attachments']) {
+        if (attachmentMap is Map<String, dynamic>) {
+          parsedAttachments.add(Attachment.fromMap(attachmentMap));
+        }
+      }
+    }
     return Post(
       id: doc.id,
       lessonId: data['lessonId'] ?? '',
       name: data['name'] ?? 'Admin',
       text: data['text'] ?? '',
       createdAt: data['createdAt'] ?? Timestamp.now(),
+      attachments: parsedAttachments,
     );
+  }
+}
+
+class Attachment {
+  final String id;
+  final String name;
+  final String url;
+  final String type;
+  final String? mimeType;
+
+  Attachment({
+    required this.id,
+    required this.name,
+    required this.url,
+    required this.type,
+    this.mimeType,
+  });
+
+  factory Attachment.fromMap(Map<String, dynamic> data) {
+    return Attachment(
+      id: data['id'],
+      name: data['name'] ?? 'Untitled Attachment',
+      url: data['url'] ?? '',
+      type: data['type'] ?? 'file',
+      mimeType: data['mimeType'],
+    );
+  }
+
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'name': name,
+      'url': url,
+      'type': type,
+      'mimeType': mimeType,
+    };
   }
 }
 

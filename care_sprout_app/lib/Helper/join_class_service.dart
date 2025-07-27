@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
 
 class JoinClassService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -40,6 +41,23 @@ class JoinClassService {
       throw Exception('You have already joined this class.');
     }
 
+    String userName = user.displayName ?? '';
+
+    try {
+      final userDoc = await _firestore.collection('users').doc(user.uid).get();
+      if (userDoc.exists) {
+        final userData = userDoc.data();
+        userName = userData?['userName'] ?? user.email ?? 'Unknown User';
+      } else {
+        debugPrint(
+            'Warning: User document not found for UID: ${user.uid}. Falling back to display name or email.');
+        userName = user.email ?? 'Unknown User';
+      }
+    } catch (e) {
+      debugPrint('Error fetching user document: $e. Falling back to display name or email.');
+      userName = user.displayName ?? user.email ?? 'Unknown User';
+    }
+
     // Add user to lesson's students subcollection
     await _firestore
         .collection('lessons')
@@ -48,8 +66,9 @@ class JoinClassService {
         .doc(user.uid)
         .set({
       'joinedAt': FieldValue.serverTimestamp(),
-      'userName': user.displayName ?? '',
+      'userName': userName,
       'email': user.email ?? '',
+      'uid': user.uid,
     });
 
     return 'Successfully joined the class!';

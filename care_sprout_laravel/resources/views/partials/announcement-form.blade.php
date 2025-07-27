@@ -10,8 +10,11 @@
       id="announcement-editor"
       class="editor-content"
       contenteditable="true"
-      data-placeholder="Announce something to your class"
-    ></div>
+      data-placeholder="Announce something to your class">
+    </div>
+    <div id="attached-files-container" class="attached-files-container">
+        {{-- Attached file chips will be appended here dynamically by JS --}}
+    </div>
     <div class="editor-toolbar">
       <button type="button" data-command="bold" title="Bold"><b>B</b></button>
       <button type="button" data-command="italic" title="Italic"><i>I</i></button>
@@ -22,17 +25,42 @@
   </div>
   <input type="hidden" name="announcement-text" id="announcement-text">
   <div class="attachments-row">
-    <button type="button"><img src="{{ asset('images/google-drive.png') }}" alt="Google Drive" class="button-icon"></button>
-    <button type="button"><img src="{{ asset('images/youtube.png') }}" alt="" class="button-icon"></button>
-    <button type="button"><img src="{{ asset('images/Upload.png') }}" alt="Upload" class="button-icon"></button>
-    <button type="button"><img src="{{ asset('images/Link.png') }}" alt="Link" class="button-icon"></button>
+    <button type="button" id="youtube-btn" title="Add YouTube video"><img src="{{ asset('images/youtube.png') }}" alt="YouTube" class="button-icon"></button>
+    <button type="button" id="cloudinary-upload-btn" title="Upload from computer"><img src="{{ asset('images/Upload.png') }}" alt="Upload" class="button-icon"></button>
+    <button type="button" id="link-btn" title="Add Link"><img src="{{ asset('images/Link.png') }}" alt="Link" class="button-icon"></button>
   </div>
+
+    <div id="upload-status" style="font-size: 0.9em; color: #555; margin-top: 10px;"></div>
+
+    <div id="link-modal" class="modal-overlay" style="display:none;">
+        <div class="modal-content">
+            <h2>Insert Link</h2>
+            <input type="url" id="link-url-input" placeholder="Enter URL" class="modal-input">
+            <input type="text" id="link-text-input" placeholder="Link text (optional)" class="modal-input">
+            <div class="modal-actions">
+                <button type="button" id="cancel-link" class="cancel-btn">Cancel</button>
+                <button type="button" id="insert-link" class="post-btn">Insert</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="youtube-modal" class="modal-overlay" style="display:none;">
+        <div class="modal-content">
+            <h2>Insert YouTube Video</h2>
+            <input type="url" id="youtube-url-input" placeholder="Enter YouTube Video URL" class="modal-input">
+            <div class="modal-actions">
+                <button type="button" id="cancel-youtube" class="cancel-btn">Cancel</button>
+                <button type="button" id="insert-youtube" class="post-btn">Insert</button>
+            </div>
+        </div>
+    </div>
   <div class="actions-row">
     <button type="button" id="cancel-announcement">Cancel</button>
     <button type="submit" id="post-announcement" disabled>Post</button>
   </div>
 </form>
 
+<script src="https://cdn.ckeditor.com/4.25.1-lts/standard/ckeditor.js"></script>
 <script>
     const editor = document.getElementById('announcement-editor');
     document.querySelectorAll('.editor-toolbar button').forEach(btn => {

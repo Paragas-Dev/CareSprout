@@ -99,7 +99,7 @@ class _LoginState extends State<Login> {
   //Guest Login
   void _onGuestLogin() async {
     try {
-      final UserCredential = await FirebaseAuth.instance.signInAnonymously();
+      final userCredential = await FirebaseAuth.instance.signInAnonymously();
       final prefs = await SharedPreferences.getInstance();
       await prefs.setBool('isGuest', true);
       Navigator.pushAndRemoveUntil(

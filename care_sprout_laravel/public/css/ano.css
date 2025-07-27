@@ -1,0 +1,125 @@
+/* Import Google Font */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
+
+/* Base Styling */
+body {
+    background: linear-gradient(#AADDE0, #CBE9DF, #EBF3DE);
+    font-family: 'Poppins', sans-serif;
+    color: #333;
+    margin: 0;
+    padding: 0;
+}
+
+/* Container with border */
+.container {
+    max-width: 900px;
+    margin: 2rem auto;
+    padding: 1.5rem;
+    border-radius: 12px;
+}
+
+/* Card */
+.card {
+    background-color: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+/* Announcement form with green border */
+.announcement-form {
+    border: 1px solid #488A01;
+}
+
+.announcement-list{
+    border: 1px solid #488A01;
+}
+
+/* Headings */
+h2 {
+    font-size: 1.4rem;
+    color: #AD781D;
+    margin-bottom: 1rem;
+}
+
+/* Input & Textarea */
+input[type="text"],
+textarea {
+    width: 100%;
+    max-width: 100%;
+    padding: 0.9rem 1rem;
+    margin-bottom: 1rem;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 1rem;
+    background-color: #ffffff;
+    color: #333;
+    box-sizing: border-box;
+}
+
+input[type="text"]:focus,
+textarea:focus {
+    border-color: #AD781D;
+    outline: none;
+    background-color: #fcfcfc;
+}
+
+/* Button */
+button[type="submit"] {
+    background-color: #AD781D;
+    color: white;
+    border: none;
+    padding: 0.7rem 1.4rem;
+    border-radius: 8px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+button[type="submit"]:hover {
+    background-color: #946015;
+}
+
+/* Table */
+.table-wrapper {
+    overflow-x: auto;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.95rem;
+    background-color: #ffffff;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+thead {
+    background-color: #BDFBFF;
+    color: #AD781D;
+}
+
+th, td {
+    padding: 0.9rem 1rem;
+    border-bottom: 1px solid #eee;
+    text-align: left;
+}
+
+tbody tr:hover {
+    background-color: #f9f9f9;
+}
+
+/* Links */
+a {
+    color: #AD781D;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+.delete {
+    color: #d9534f;
+}
