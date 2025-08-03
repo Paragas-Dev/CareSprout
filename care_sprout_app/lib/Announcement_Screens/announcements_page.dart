@@ -1,3 +1,4 @@
+import 'package:care_sprout/Announcement_Screens/announcement_details_screen.dart';
 import 'package:care_sprout/Helper/rive_button_loader.dart';
 import 'package:care_sprout/home_screen.dart';
 import 'package:flutter/material.dart';
@@ -173,74 +174,93 @@ class _AnnouncementsPageState extends State<AnnouncementsPage> {
                               final createdAt =
                                   data['createdAt'] as cf.Timestamp?;
 
-                              return Container(
-                                margin: const EdgeInsets.only(bottom: 16),
-                                padding: const EdgeInsets.all(16),
-                                decoration: BoxDecoration(
-                                  color: Colors.white.withOpacity(0.9),
-                                  borderRadius: BorderRadius.circular(12),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.black.withOpacity(0.1),
-                                      blurRadius: 8,
-                                      offset: const Offset(2, 2),
+                              return GestureDetector(
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) =>
+                                          AnnouncementDetailsScreen(
+                                        title: title,
+                                        content: content,
+                                        postedOn: createdAt != null
+                                            ? _formatDate(createdAt.toDate())
+                                            : null,
+                                      ),
                                     ),
-                                  ],
-                                ),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Row(
-                                      children: [
-                                        const Icon(
-                                          Icons.announcement,
-                                          color: Color(0xFF34732F),
-                                          size: 24,
+                                  );
+                                },
+                                child: Container(
+                                  margin: const EdgeInsets.only(bottom: 16),
+                                  padding: const EdgeInsets.all(16),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white.withOpacity(0.9),
+                                    borderRadius: BorderRadius.circular(12),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.black.withOpacity(0.1),
+                                        blurRadius: 8,
+                                        offset: const Offset(2, 2),
+                                      ),
+                                    ],
+                                  ),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Row(
+                                        children: [
+                                          const Icon(
+                                            Icons.announcement,
+                                            color: Color(0xFF34732F),
+                                            size: 24,
+                                          ),
+                                          const SizedBox(width: 8),
+                                          Expanded(
+                                            child:
+                                                ValueListenableBuilder<double>(
+                                              valueListenable:
+                                                  FontSizeController.fontSize,
+                                              builder:
+                                                  (context, fontSize, child) {
+                                                return Text(
+                                                  title,
+                                                  style: TextStyle(
+                                                    fontSize: fontSize * 0.8,
+                                                    fontFamily: 'Luckiest Guy',
+                                                    fontWeight: FontWeight.bold,
+                                                    color:
+                                                        const Color(0xFF34732F),
+                                                  ),
+                                                );
+                                              },
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      const SizedBox(height: 8),
+                                      Text(
+                                        content,
+                                        style: const TextStyle(
+                                          fontSize: 14,
+                                          fontFamily: 'Aleo',
+                                          color: Colors.black87,
                                         ),
-                                        const SizedBox(width: 8),
-                                        Expanded(
-                                          child: ValueListenableBuilder<double>(
-                                            valueListenable:
-                                                FontSizeController.fontSize,
-                                            builder:
-                                                (context, fontSize, child) {
-                                              return Text(
-                                                title,
-                                                style: TextStyle(
-                                                  fontSize: fontSize * 0.8,
-                                                  fontFamily: 'Luckiest Guy',
-                                                  fontWeight: FontWeight.bold,
-                                                  color:
-                                                      const Color(0xFF34732F),
-                                                ),
-                                              );
-                                            },
+                                      ),
+                                      if (createdAt != null) ...[
+                                        const SizedBox(height: 8),
+                                        Text(
+                                          'Posted on: ${_formatDate(createdAt.toDate())}',
+                                          style: const TextStyle(
+                                            fontSize: 12,
+                                            fontFamily: 'Aleo',
+                                            color: Colors.grey,
+                                            fontStyle: FontStyle.italic,
                                           ),
                                         ),
                                       ],
-                                    ),
-                                    const SizedBox(height: 8),
-                                    Text(
-                                      content,
-                                      style: const TextStyle(
-                                        fontSize: 14,
-                                        fontFamily: 'Aleo',
-                                        color: Colors.black87,
-                                      ),
-                                    ),
-                                    if (createdAt != null) ...[
-                                      const SizedBox(height: 8),
-                                      Text(
-                                        'Posted on: ${_formatDate(createdAt.toDate())}',
-                                        style: const TextStyle(
-                                          fontSize: 12,
-                                          fontFamily: 'Aleo',
-                                          color: Colors.grey,
-                                          fontStyle: FontStyle.italic,
-                                        ),
-                                      ),
                                     ],
-                                  ],
+                                  ),
                                 ),
                               );
                             }).toList(),

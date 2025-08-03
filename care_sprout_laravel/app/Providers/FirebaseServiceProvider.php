@@ -2,10 +2,14 @@
 
 namespace App\Providers;
 
+use App\Http\Controllers\PageController;
 use Illuminate\Support\ServiceProvider;
 use Kreait\Firebase\Factory;
+use Illuminate\Support\Facades\Auth;
 use Kreait\Firebase\ServiceAccount;
 use Google\Cloud\Firestore\FirestoreClient;
+use Illuminate\Support\Facades\Route;
+use App\Http\Middleware\StoreUserRole;
 
 class FirebaseServiceProvider extends ServiceProvider
 {
@@ -16,7 +20,7 @@ class FirebaseServiceProvider extends ServiceProvider
     {
         $this->app->singleton('firebase', function ($app) {
             $credentialsPath = storage_path('app/firebase/firebase-credentials.json');
-            
+
             if (!file_exists($credentialsPath)) {
                 throw new \Exception("Firebase credentials file not found: $credentialsPath");
             }
@@ -41,7 +45,7 @@ class FirebaseServiceProvider extends ServiceProvider
 
         $this->app->singleton(FirestoreClient::class, function ($app) {
             $credentialsPath = storage_path('app/firebase/firebase-credentials.json');
-            
+
             if (!file_exists($credentialsPath)) {
                 throw new \Exception("Firebase credentials file not found: $credentialsPath");
             }
@@ -59,12 +63,27 @@ class FirebaseServiceProvider extends ServiceProvider
                 'httpHandler' => function ($request, $options = []) {
                     $options['timeout'] = 30;
                     $options['connect_timeout'] = 10;
-                    
+
                     $client = new \GuzzleHttp\Client();
                     return $client->send($request, $options);
                 },
             ]);
         });
+
+        $this->app->singleton('firebase.firestore', function ($app) {
+            return $app->make(FirestoreClient::class);
+        });
+    }
+
+    public function getCurrentUserRole()
+    {
+        $user = Auth::user();
+        if (!$user) return null;
+
+        $firestore = app('firebase.firestore');
+        $snapshot = $firestore->collection('admin')->document($user->uid)->snapshot();
+
+        return $snapshot->exists() ? $snapshot->data()['role'] : null;
     }
 
     /**
@@ -72,6 +91,9 @@ class FirebaseServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        Route::middleware([StoreUserRole::class])->group(function () {
+            Route::get('/settings', [PageController::class, 'settings'])->name('settings');
+            // Add other routes that require the middleware
+        });
     }
-} 
+}

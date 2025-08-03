@@ -63,3 +63,20 @@ body {
     border-color: #f5365c;
 }
 
+/* Toggle Visibility */
+.position-relative {
+    position: relative;
+}
+
+.password-toggle {
+    position: absolute;
+    top: 70%;
+    right: 10px;
+    transform: translateY(-50%);
+    cursor: pointer;
+    opacity: 0.7;
+}
+
+.password-toggle:hover {
+    opacity: 1;   }
+

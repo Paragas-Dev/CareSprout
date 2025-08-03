@@ -150,6 +150,7 @@ class _SecondSignUpState extends State<SecondSignUp> {
             'homeAddress': widget.homeAddress,
             'disability': widget.disability,
             'parentName': parentNameController.text.trim(),
+            'parentNameLowercase': parentNameController.text.trim().toLowerCase(),
             'phone': phoneController.text.trim(),
             'email': email,
             'status': 'pending',

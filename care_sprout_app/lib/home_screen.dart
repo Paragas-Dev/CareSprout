@@ -7,7 +7,7 @@ import 'package:care_sprout/Lesson_Screens/lesson_home.dart';
 import 'package:care_sprout/Messaging/chat_homescreen.dart';
 import 'package:care_sprout/profile.dart';
 import 'package:care_sprout/settings.dart';
-import 'package:care_sprout/announcements_page.dart';
+import 'package:care_sprout/Announcement_Screens/announcements_page.dart';
 import 'package:cloud_firestore/cloud_firestore.dart' as cf;
 import 'package:flutter/material.dart';
 import 'package:rive/rive.dart' as rive;
@@ -583,7 +583,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                                 final content =
                                                     data['content'] ?? '';
                                                 return _AnnouncementCard(
-                                                    text: '$title\n$content');
+                                                  title: title,
+                                                  content: content,
+                                                );
                                               },
                                             ),
                                           ),
@@ -821,10 +823,12 @@ class _HomeScreenState extends State<HomeScreen> {
 }
 
 class _AnnouncementCard extends StatelessWidget {
-  final String text;
+  final String title;
+  final String content;
 
   const _AnnouncementCard({
-    required this.text,
+    required this.title,
+    required this.content,
   });
 
   @override
@@ -838,13 +842,33 @@ class _AnnouncementCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: Colors.white30),
       ),
-      child: Text(
-        text,
-        style: const TextStyle(
-          fontSize: 13,
-          fontFamily: 'Aleo',
-          color: Colors.white,
-        ),
+      child: Column(
+        children: [
+          Text(
+            title,
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              fontSize: 16,
+              fontFamily: 'Aleo',
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+            ),
+            overflow: TextOverflow.ellipsis,
+            maxLines: 1,
+          ),
+          const SizedBox(height: 8),
+          Text(
+            content,
+            textAlign: TextAlign.start,
+            style: const TextStyle(
+              fontSize: 13,
+              fontFamily: 'Aleo',
+              color: Colors.white,
+            ),
+            overflow: TextOverflow.ellipsis,
+            maxLines: 4,
+          ),
+        ],
       ),
     );
   }

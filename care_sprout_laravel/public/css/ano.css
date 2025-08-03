@@ -10,30 +10,125 @@ body {
     padding: 0;
 }
 
+body.modal-open {
+    overflow: hidden;
+}
+
+#editAnnouncementModal .modal-content.edit-modal-content {
+    width: 700px;
+    height: auto;
+    max-height: 90vh;
+    overflow-y: auto;
+    padding: 20px;
+    background-color: white;
+    border-radius: 10px;
+}
+
+#viewAnnouncementModal .view-modal-content {
+    width: 800px;
+    max-height: 90vh;
+    overflow-y: auto;
+    padding: 20px;
+    align-items: flex-start;
+    background-color: #fff;
+    border-radius: 10px;
+}
+
+#editAnnouncementModal {
+    display: none;
+    position: fixed;
+    z-index: 9999;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.6);
+}
+
+#editAnnouncementModal .close {
+    float: right;
+    font-size: 20px;
+    cursor: pointer;
+}
+
 /* Container with border */
 .container {
-    max-width: 900px;
-    margin: 2rem auto;
+    max-width: 1000px;
+    width: 1000px;
+    margin-left: auto;
+    margin-right: auto;
     padding: 1.5rem;
     border-radius: 12px;
+    height: 100vh;
+
 }
 
 /* Card */
 .card {
+    max-width: 1000px;
+    width: 1000px;
+    align-items: center;
     background-color: white;
     border-radius: 12px;
+    margin-left: auto;
+    margin-right: auto;
     padding: 1.5rem;
     margin-bottom: 2rem;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 }
 
+/* View Announcement */
+
+.letter-style {
+    max-width: 800px;
+    width: 800px;
+    height: 60vh;
+    margin: auto;
+    padding: 30px;
+    background: #fffdf5;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    font-family: 'Georgia', serif;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    overflow-y: auto;
+    max-height: 100vh;
+    justify-content: center;
+    position: relative;
+}
+
+.letter-header h2 {
+    margin-top: 0;
+    font-size: 24px;
+    text-align: center;
+    text-decoration: none;
+}
+
+.letter-header p {
+    margin: 5px 0;
+    text-align: left;
+}
+
+.letter-body {
+    margin: 20px 0;
+    white-space: pre-line;
+    line-height: 1.6;
+    text-align: justify;
+}
+
 /* Announcement form with green border */
 .announcement-form {
     border: 1px solid #488A01;
+    width: 1100px;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .announcement-list{
     border: 1px solid #488A01;
+    width: 1100px;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 /* Headings */
@@ -108,6 +203,54 @@ th, td {
 
 tbody tr:hover {
     background-color: #f9f9f9;
+}
+
+/* Modal */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1001;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.4);
+}
+
+.modal-content {
+    background-color: #fff;
+    margin: 15% auto;
+    padding: 20px;
+    border-radius: 12px;
+    width: 300px;
+    text-align: center;
+    font-family: 'Poppins', sans-serif;
+}
+
+.edit-modal-content {
+    width: 600px;
+    height: auto;
+    max-height: 80vh;
+    overflow: auto;
+    padding: 20px;
+    z-index: 1001;
+
+}
+
+.modal-content.success {
+    border-left: 6px solid #28a745;
+}
+
+.modal-content.error {
+    border-left: 6px solid #dc3545;
+}
+
+.close {
+    float: right;
+    font-size: 20px;
+    font-weight: bold;
+    cursor: pointer;
 }
 
 /* Links */

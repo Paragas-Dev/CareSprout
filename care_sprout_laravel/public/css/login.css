@@ -18,6 +18,7 @@ body {
     text-align: center;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
   }
+
   .title {
     font-size: 36px;
     font-weight: bold;
@@ -30,8 +31,7 @@ body {
     color: #2f5723;
     font-weight: bold;
   }
-  input[type="email"],
-  input[type="password"] {
+  input[type="email"] {
     width: 90%;
     padding: 20px;
     margin: 10px 0;
@@ -44,6 +44,42 @@ body {
     background-origin: border-box;
     background-clip: padding-box, border-box;
   }
+
+.password-container {
+    position: relative;
+    width: 90%;
+}
+
+.password-container input[type="password"],
+.password-container input[type="text"] {
+    width: 100%;
+    padding: 20px;
+    margin: 10px 0;
+    border: 2px solid transparent;
+    border-radius: 10px;
+    background: #fff;
+    color: #333;
+    font-weight: bold;
+    background-image: linear-gradient(#fff, #fff), linear-gradient(to right, #B3D981, #BF8C33);
+    background-origin: border-box;
+    background-clip: padding-box, border-box;
+}
+
+.toggle-password {
+    position: absolute;
+    right: -15px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: #888;
+    font-size: 1.2rem;
+}
+
+.toggle-password:hover {
+    color: #333;
+}
+
+
   input[type="submit"] {
     background: #3db2ff;
     color: white;
@@ -116,10 +152,16 @@ body {
     font-size: 14px;
   }
 
-  input[type="email"],
-  input[type="password"] {
+  input[type="email"] {
     padding: 14px;
     font-size: 13px;
+  }
+
+  .password-container input[type="password"],
+  .password-container input[type="text"] {
+      padding: 14px;
+      padding-right: 40px;
+      font-size: 13px;
   }
 
   input[type="submit"] {
@@ -138,4 +180,4 @@ body {
   }
 }
 
-  
+

@@ -101,10 +101,12 @@ body {
   padding: 16px 12px;
   text-align: center;
   font-size: 1rem;
+  border-bottom: 1px solid #bcb6b6;
+
 }
 
 .announcement-table thead th {
-  background: #f3eded;
+  background: #BDFBFF;
   color: #888;
   font-weight: bold;
   text-align: center;

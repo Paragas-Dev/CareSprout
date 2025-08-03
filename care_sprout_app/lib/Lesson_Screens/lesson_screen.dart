@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_types_as_parameter_names, non_constant_identifier_names, unused_element_parameter
+
 import 'package:care_sprout/Helper/global_font_size.dart';
 import 'package:care_sprout/Helper/lesson_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -486,7 +488,7 @@ class _LessonScreenState extends State<LessonScreen> {
                             border: InputBorder.none,
                             isDense: true,
                           ),
-                          style: TextStyle(color: Color(0xFFBF8C33)),
+                          style: const TextStyle(color: Color(0xFFBF8C33)),
                         ),
                       ),
                     ),

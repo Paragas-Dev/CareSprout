@@ -3,6 +3,8 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PageController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\SettingsController;
+use App\Http\Middleware\StoreUserRole;
 
 // Main route
 Route::get('/', function () {
@@ -12,57 +14,89 @@ Route::get('/', function () {
 // login
 Route::get('/login', [PageController::class, 'showLogin'])->name('login');
 
-// Dashboard routes based on role
-Route::get('/home', [PageController::class, 'dashboard'])->name('home');
+// --- Protected Routes for Principals ---
 
-Route::get('/principal', [PageController::class, 'principalDashboard'])->name('principal.dashboard');
+    // Principal Dashboard
+    Route::get('/principal', [PageController::class, 'principalDashboard'])->name('principal.dashboard');
 
-Route::get('/mswd', [PageController::class, 'mswdDashboard'])->name('mswd.dashboard');
+    // students management
+    Route::get('/students', [PageController::class, 'students'])->name('students');
 
-//Messages
-Route::get('/messages', [PageController::class, 'messages'])->name('messages');
+    // announcements
+    Route::get('/announcements', [PageController::class, 'announcements'])->name('announcements');
 
-//Approval
-Route::get('/approval', [PageController::class, 'approval'])->name('approval');
+    // administrator
+    Route::get('/administrator', [PageController::class, 'administrator'])->name('administrator');
+    Route::delete('/admin/delete/{uid}', [AdminController::class, 'deleteAdmin']);
 
-//Leaderboards
-Route::get('/leader', [PageController::class, 'leader'])->name('leader');
+    // Principal Settings
+    Route::get('/principal/settings', function () {
+        return redirect()->route('settings');
+    });
 
-//Announcements
-Route::get('/announcement', [PageController::class, 'announcement'])->name('announcement');
 
-// announcements
-Route::get('/announcements', [PageController::class, 'announcements'])->name('announcements');
 
-//Reports
-Route::get('/reports', [PageController::class, 'reports'])->name('reports');
 
-// students
-Route::get('/students', [PageController::class, 'students'])->name('students');
 
-//Lesson Home
-Route::get('/lessons', function () {
-    return view('lessons.lesson-home');
-})->name('lessons.home');
+// --- Protected Routes for Teachers and other roles ---
 
-// administrator
-Route::get('/administrator', [PageController::class, 'administrator'])->name('administrator');
+    //teacher Dashboard
+    Route::get('/home', [PageController::class, 'dashboard'])->name('home');
 
-//Lesson Stream
-Route::get('/lesson-stream/{lessonId}', function ($lessonId) {
-    return view('lessons.lesson-stream', ['lessonId' => $lessonId]);
-})->name('lesson-stream');
+    //Messages
+    Route::get('/messages', [PageController::class, 'messages'])->name('messages');
 
-//Lesson Archives
-Route::get('/lesson-archives', [PageController::class, 'lessonArchives'])->name('lessons.archived');
+    //Approval
+    Route::get('/approval', [PageController::class, 'approval'])->name('approval');
 
-// Settings
-Route::get('/settings', [PageController::class, 'settings'])->name('settings');
+    //Leaderboards
+    Route::get('/leader', [PageController::class, 'leader'])->name('leader');
 
-// Create Admin
-Route::get('/create-admin', function () {
-    return view('admin.create-admin');
+    //Announcements
+    Route::get('/announcement', [PageController::class, 'announcement'])->name('announcement');
+
+    //Reports
+    Route::get('/reports', [PageController::class, 'reports'])->name('reports');
+
+    //Lesson Home
+    Route::get('/lessons', function () {
+        return view('lessons.lesson-home');
+    })->name('lessons.home');
+
+    //Lesson Stream
+    Route::get('/lesson-stream/{lessonId}', function ($lessonId) {
+        return view('lessons.lesson-stream', ['lessonId' => $lessonId]);
+    })->name('lesson-stream');
+
+    //Lesson Archives
+    Route::get('/lesson-archives', [PageController::class, 'lessonArchives'])->name('lessons.archived');
+
+    // Teacher settings
+    Route::get('/teacher/settings', function () {
+        return redirect()->route('settings');
+    });
+
+
+
+
+
+// --- Protected Routes for MSWD Officers ---
+    Route::get('/mswd', [PageController::class, 'mswdDashboard'])->name('mswd.dashboard');
+
+
+    // Shared Settings
+    // Route::get('/settings', [PageController::class, 'settings'])->name('settings');
+    Route::middleware([StoreUserRole::class])->group(function () {
+        Route::get('/settings', [PageController::class, 'settings'])->name('settings');
+    });
+
+// --- Authentication Routes ---
+
+Route::post('/set-role', function (\Illuminate\Http\Request $request) {
+    session(['role' => $request->role]);
+    return response()->json(['status' => 'ok']);
 });
-
-// Admin Add
-Route::get('/admin/add', [AdminController::class, 'create'])->name('admin.create');
+Route::post('/logout-session', function () {
+    session()->flush();
+    return response()->json(['status' => 'ok']);
+});

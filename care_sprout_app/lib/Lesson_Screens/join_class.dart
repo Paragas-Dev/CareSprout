@@ -30,10 +30,11 @@ class _JoinClassState extends State<JoinClass> {
         SnackBar(content: Text(e.toString().replaceFirst('Exception: ', ''))),
       );
     } finally {
-      if (mounted)
+      if (mounted) {
         setState(() {
           _isLoading = false;
         });
+      }
     }
   }
 

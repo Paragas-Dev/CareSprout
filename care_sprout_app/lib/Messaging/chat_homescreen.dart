@@ -241,20 +241,23 @@ class _ChatHomescreenState extends State<ChatHomescreen> {
   void _performSearch(String query) async {
     try {
       final currentUserID = getCurrentUser()!.uid;
-      final querySnapshot = await FirebaseFirestore.instance
+      final snapshot = await FirebaseFirestore.instance
           .collection('users')
-          .where('parentName', isGreaterThanOrEqualTo: query)
-          .where('parentName', isLessThan: query + '\uf8ff')
-          .get();
+          .get(); // Get all users
+
+      final results = snapshot.docs.where((doc) {
+        if (doc.id == currentUserID) return false;
+
+        final parentName = (doc.data()['parentName'] ?? '').toString();
+        return parentName.toLowerCase().contains(query.toLowerCase());
+      }).map((doc) {
+        final data = doc.data();
+        data['uid'] = doc.id;
+        return data;
+      }).toList();
 
       setState(() {
-        _searchResults = querySnapshot.docs
-            .where((doc) => doc.id != currentUserID)
-            .map((doc) {
-          final data = doc.data();
-          data['uid'] = doc.id;
-          return data;
-        }).toList();
+        _searchResults = results;
       });
     } catch (e) {
       debugPrint('Error searching users: $e');
