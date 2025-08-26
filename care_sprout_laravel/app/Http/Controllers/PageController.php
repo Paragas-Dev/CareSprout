@@ -49,6 +49,11 @@ class PageController extends Controller
         return view('management.approval');
     }
 
+    public function studentList()
+    {
+        return view('management.student-list');
+    }
+
 
     public function leader()
     {

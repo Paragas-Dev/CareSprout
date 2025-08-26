@@ -8,8 +8,11 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
+    overflow-x: hidden;
+    overflow-y: hidden;
   }
   .container {
+    height: auto;
     background-color: linear-gradient(to bottom, #AADDE0, #CBE9DF, #EBF3DE);
     border-radius: 20px;
     padding: 50px;
@@ -26,13 +29,14 @@ body {
     text-shadow: 2px 2px #fff;
   }
   .subtitle {
-    font-size: 18px;
+    font-size: 25px;
     margin-bottom: 30px;
     color: #2f5723;
     font-weight: bold;
   }
   input[type="email"] {
-    width: 90%;
+    width: 80%;
+    height: 15px;
     padding: 20px;
     margin: 10px 0;
     border: 2px solid transparent;
@@ -52,9 +56,10 @@ body {
 
 .password-container input[type="password"],
 .password-container input[type="text"] {
-    width: 100%;
+    width: 90%;
+    height: 15px;
     padding: 20px;
-    margin: 10px 0;
+    margin: 10px 15px 0 15px;
     border: 2px solid transparent;
     border-radius: 10px;
     background: #fff;
@@ -67,9 +72,9 @@ body {
 
 .toggle-password {
     position: absolute;
-    right: -15px;
+    right: -7px;
     top: 50%;
-    transform: translateY(-50%);
+    transform: translateY(-35%);
     cursor: pointer;
     color: #888;
     font-size: 1.2rem;
@@ -79,22 +84,22 @@ body {
     color: #333;
 }
 
-
   input[type="submit"] {
     background: #3db2ff;
     color: white;
     font-weight: bold;
-    padding: 10px 25px;
+    padding: 10px 50px;
     border: none;
     border-radius: 10px;
     margin-top: 20px;
     cursor: pointer;
     box-shadow: 3px 3px #256da1;
   }
+
   .links {
-    margin-top: 15px;
     font-size: 14px;
     text-align: right;
+    margin-right: 20px;
   }
   .links a {
     color: #005Dff;

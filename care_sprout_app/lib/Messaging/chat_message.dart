@@ -1,3 +1,4 @@
+import 'package:care_sprout/Helper/audio_service.dart';
 import 'package:care_sprout/Helper/chat_service.dart';
 import 'package:care_sprout/Helper/rive_button_loader.dart';
 import 'package:care_sprout/Messaging/chat_homescreen.dart';
@@ -32,6 +33,7 @@ class _ChatMessageState extends State<ChatMessage> {
   void initState() {
     _loadRiveAssets();
     super.initState();
+    AudioService().pauseBgMusic();
   }
 
   Future<void> _loadRiveAssets() async {
@@ -49,6 +51,7 @@ class _ChatMessageState extends State<ChatMessage> {
 
   void _onTap() {
     if (backClick != null) {
+      AudioService().playClickSound();
       backClick!.fire();
       debugPrint('Button Clicked!');
       Future.delayed(const Duration(milliseconds: 500), () {
@@ -70,9 +73,17 @@ class _ChatMessageState extends State<ChatMessage> {
       await _chatService.sendMessage(
           widget.receiverID, _messageController.text);
 
+      await AudioService().playMessageSent();
+
       //clear text controller
       _messageController.clear();
     }
+  }
+
+  @override
+  void dispose() {
+    AudioService().resumeBgMusic();
+    super.dispose();
   }
 
   @override

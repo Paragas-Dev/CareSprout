@@ -1,4 +1,5 @@
 import 'package:care_sprout/Announcement_Screens/announcement_details_screen.dart';
+import 'package:care_sprout/Helper/audio_service.dart';
 import 'package:care_sprout/Helper/rive_button_loader.dart';
 import 'package:care_sprout/home_screen.dart';
 import 'package:flutter/material.dart';
@@ -40,6 +41,7 @@ class _AnnouncementsPageState extends State<AnnouncementsPage> {
 
   void _onTap() {
     if (backClick != null) {
+      AudioService().playClickSound();
       backClick!.fire();
       debugPrint('Button Clicked!');
       Future.delayed(const Duration(milliseconds: 500), () {

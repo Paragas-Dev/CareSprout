@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:care_sprout/Auth/login.dart';
 import 'package:care_sprout/Auth/second_sign_up.dart';
+import 'package:care_sprout/Helper/audio_service.dart';
 import 'package:flutter/material.dart';
 import 'package:care_sprout/Helper/rive_button_loader.dart';
 import 'package:image_picker/image_picker.dart';
@@ -76,6 +77,7 @@ class _SignUpState extends State<SignUp> {
 
   void _onTap() {
     if (backClick != null) {
+      AudioService().playClickSound();
       backClick!.fire();
       debugPrint('Button Clicked!');
       Future.delayed(const Duration(milliseconds: 500), () {
@@ -92,6 +94,7 @@ class _SignUpState extends State<SignUp> {
   void _onNextTap() {
     if (!(_formKey.currentState?.validate() ?? false)) return;
     if (buttonClick != null) {
+      AudioService().playClickSound();
       buttonClick!.fire();
       debugPrint('Button Clicked!');
       Future.delayed(const Duration(milliseconds: 500), () {

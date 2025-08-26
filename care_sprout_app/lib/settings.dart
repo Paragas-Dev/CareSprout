@@ -1,4 +1,5 @@
 import 'package:care_sprout/Auth/login.dart';
+import 'package:care_sprout/Helper/audio_service.dart';
 import 'package:care_sprout/home_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
@@ -52,6 +53,7 @@ class _SettingsState extends State<Settings> {
 
   void _onTap() {
     if (backClick != null) {
+      AudioService().playClickSound();
       backClick!.fire();
       debugPrint('Button Clicked!');
       Future.delayed(const Duration(milliseconds: 500), () {
@@ -71,18 +73,24 @@ class _SettingsState extends State<Settings> {
     if (isGuest) {
       _showGuestWarning();
     } else {
-      _logout();
+      _logout(isGuest: false);
     }
   }
 
-  Future<void> _logout() async {
+  Future<void> _logout({bool isGuest = false}) async {
     if (logoutClick != null) {
+      await AudioService().playClickSound();
       logoutClick!.fire();
       debugPrint('Button Clicked!');
 
       try {
-        await FirebaseAuth.instance.signOut();
-        debugPrint('User signed out from Firebase.');
+        if (isGuest) {
+          await FirebaseAuth.instance.currentUser?.delete();
+          debugPrint('Guest user deleted.');
+        } else {
+          await FirebaseAuth.instance.signOut();
+          debugPrint('User signed out.');
+        }
 
         if (!mounted) return;
 
@@ -115,7 +123,7 @@ class _SettingsState extends State<Settings> {
           TextButton(
             onPressed: () {
               Navigator.pop(context);
-              _logout();
+              _logout(isGuest: true);
             },
             child: const Text('Logout Anyway'),
           ),
@@ -236,14 +244,17 @@ class _SettingsState extends State<Settings> {
                             );
                           },
                         ),
-                        Switch(
-                          value: true,
-                          onChanged: (value) {
-                            if (kDebugMode) {
-                              print(value);
-                            }
+                        ValueListenableBuilder<bool>(
+                          valueListenable: AudioService().musicEnabled,
+                          builder: (context, isEnabled, child) {
+                            return Switch(
+                              value: isEnabled,
+                              onChanged: (value) {
+                                AudioService().toggleMusic(value);
+                              },
+                            );
                           },
-                        )
+                        ),
                       ],
                     ),
                     const SizedBox(height: 16.0),
@@ -273,14 +284,17 @@ class _SettingsState extends State<Settings> {
                             );
                           },
                         ),
-                        Switch(
-                          value: true,
-                          onChanged: (value) {
-                            if (kDebugMode) {
-                              print(value);
-                            }
+                        ValueListenableBuilder<bool>(
+                          valueListenable: AudioService().soundEnabled,
+                          builder: (context, isEnabled, child) {
+                            return Switch(
+                              value: isEnabled,
+                              onChanged: (value) {
+                                AudioService().toggleSound(value);
+                              },
+                            );
                           },
-                        )
+                        ),
                       ],
                     ),
                     const SizedBox(height: 16.0),

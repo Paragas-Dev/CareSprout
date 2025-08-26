@@ -1,4 +1,5 @@
 // ignore_for_file: deprecated_member_use
+import 'package:care_sprout/Helper/audio_service.dart';
 import 'package:care_sprout/Helper/lesson_service.dart';
 import 'package:care_sprout/Lesson_Screens/lesson_home.dart';
 import 'package:care_sprout/Lesson_Screens/lesson_screen.dart';
@@ -67,6 +68,7 @@ class _SubjectScreenState extends State<SubjectScreen> {
 
   void _onTap() {
     if (buttonClick != null) {
+      AudioService().playClickSound();
       buttonClick!.fire();
       debugPrint('Button Clicked!');
       Future.delayed(const Duration(milliseconds: 500), () {
@@ -204,7 +206,7 @@ class _SubjectScreenState extends State<SubjectScreen> {
                                       ),
                                       SizedBox(height: 16),
                                       Text(
-                                        'No announcements yet',
+                                        'No Posts yet',
                                         style: TextStyle(
                                           fontSize: 18,
                                           color: Color(0xFFBF8C33),
@@ -222,7 +224,8 @@ class _SubjectScreenState extends State<SubjectScreen> {
                                 itemCount: posts.length,
                                 itemBuilder: (context, index) {
                                   final post = posts[index];
-                                  return PostCard(post: post, lessonId: widget.lessonId);
+                                  return PostCard(
+                                      post: post, lessonId: widget.lessonId);
                                 },
                               );
                             },
@@ -262,7 +265,8 @@ class _PostCardState extends State<PostCard> {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => LessonScreen(post: widget.post, lessonId: widget.lessonId ?? ''),
+            builder: (context) => LessonScreen(
+                post: widget.post, lessonId: widget.lessonId ?? ''),
           ),
         );
       },

@@ -12,7 +12,7 @@ class RiveButtonAssets {
 Future<RiveButtonAssets> loadRiveButton({
   required String assetPath,
   required String stateMachineName,
-  required String triggerName,
+  required String? triggerName,
 }) async {
   await rive.RiveFile.initialize();
   final data = await rootBundle.load(assetPath);

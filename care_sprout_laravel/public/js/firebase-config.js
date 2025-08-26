@@ -25,10 +25,11 @@ const firebaseConfig = {
   (async function initFirebase() {
     try {
       if (typeof firebase === 'undefined' || !firebase.auth || !firebase.firestore) {
-        await loadScript('https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js');
-        await loadScript('https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js');
-        await loadScript('https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js');
-        await loadScript('https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js');
+        // Use compat builds so existing v8-style code keeps working, while getting up-to-date error mappings
+        await loadScript('https://www.gstatic.com/firebasejs/10.12.3/firebase-app-compat.js');
+        await loadScript('https://www.gstatic.com/firebasejs/10.12.3/firebase-auth-compat.js');
+        await loadScript('https://www.gstatic.com/firebasejs/10.12.3/firebase-firestore-compat.js');
+        await loadScript('https://www.gstatic.com/firebasejs/10.12.3/firebase-database-compat.js');
       }
 
       if (!firebase.apps.length) {

@@ -1,10 +1,17 @@
 // ignore_for_file: avoid_types_as_parameter_names, non_constant_identifier_names, unused_element_parameter
 
+import 'dart:io';
+
+import 'package:care_sprout/Components/pdf_viewer_screen.dart';
+import 'package:care_sprout/Helper/audio_service.dart';
+import 'package:care_sprout/Helper/downloads_database.dart';
 import 'package:care_sprout/Helper/global_font_size.dart';
 import 'package:care_sprout/Helper/lesson_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:http/http.dart' as http;
+import 'package:path_provider/path_provider.dart';
 import 'package:rive/rive.dart' as rive;
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -54,10 +61,12 @@ class _LessonScreenState extends State<LessonScreen> {
     super.initState();
     _lessonId = widget.lessonId;
     _currentPost = widget.post;
+    AudioService().pauseBgMusic();
   }
 
   void _onTap() {
     if (buttonClick != null) {
+      AudioService().playClickSound();
       buttonClick!.fire();
       debugPrint('Button Clicked!');
       Future.delayed(const Duration(milliseconds: 500), () {
@@ -86,7 +95,25 @@ class _LessonScreenState extends State<LessonScreen> {
 
   // attachment wigdet
   Widget _buildAttachmentWidget(Attachment attachment) {
-    switch (attachment.type.toLowerCase()) {
+    String fileType =
+        attachment.format?.toLowerCase() ?? attachment.type.toLowerCase();
+
+    switch (fileType) {
+      case 'pdf':
+        return _AttachmentCard(
+          icon: Icons.picture_as_pdf,
+          label: attachment.name,
+          onTap: () async {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => PdfViewerScreen(
+                    fileName: attachment.name, filePath: attachment.url),
+              ),
+            );
+          },
+          attachment: attachment,
+        );
       case 'image':
         return GestureDetector(
           onTap: () async {
@@ -122,7 +149,7 @@ class _LessonScreenState extends State<LessonScreen> {
             ),
           ),
         );
-      case 'Video':
+      case 'video':
         return _AttachmentCard(
           icon: Icons.play_circle_fill,
           label: attachment.name,
@@ -133,13 +160,37 @@ class _LessonScreenState extends State<LessonScreen> {
               debugPrint('Could not launch ${attachment.url}');
             }
           },
+          attachment: attachment,
         );
-      case 'Youtube':
+      case 'youtube':
         String? youtubeId = YoutubePlayer.convertUrlToId(attachment.url);
         if (youtubeId != null) {
-          return Padding(
-            padding: const EdgeInsets.symmetric(vertical: 8.0),
-            child: YoutubeVideoPlayer(videoUrl: attachment.url),
+          return _AttachmentCard(
+            iconWidget: Image.network(
+              height: 45,
+              YoutubePlayer.getThumbnail(
+                  videoId: youtubeId, quality: ThumbnailQuality.defaultQuality),
+              fit: BoxFit.contain,
+              errorBuilder: (context, error, stackTrace) {
+                return const Icon(
+                  Icons.error,
+                  color: Colors.red,
+                  size: 40.0,
+                );
+              },
+            ),
+            label: attachment.name,
+            onTap: () {
+              showDialog(
+                context: context,
+                builder: (context) {
+                  return Dialog(
+                    child: YoutubeVideoPlayer(videoUrl: attachment.url),
+                  );
+                },
+              );
+            },
+            attachment: attachment,
           );
         }
         return _AttachmentCard(
@@ -152,6 +203,7 @@ class _LessonScreenState extends State<LessonScreen> {
               debugPrint('Could not launch ${attachment.url}');
             }
           },
+          attachment: attachment,
         );
       case 'link':
         return _AttachmentCard(
@@ -164,18 +216,7 @@ class _LessonScreenState extends State<LessonScreen> {
               debugPrint('Could not launch ${attachment.url}');
             }
           },
-        );
-      case 'pdf':
-        return _AttachmentCard(
-          icon: Icons.picture_as_pdf,
-          label: attachment.name,
-          onTap: () async {
-            if (await canLaunchUrl(Uri.parse(attachment.url))) {
-              await launchUrl(Uri.parse(attachment.url));
-            } else {
-              debugPrint('Could not launch ${attachment.url}');
-            }
-          },
+          attachment: attachment,
         );
       default:
         return _AttachmentCard(
@@ -188,6 +229,7 @@ class _LessonScreenState extends State<LessonScreen> {
               debugPrint('Could not launch ${attachment.url}');
             }
           },
+          attachment: attachment,
         );
     }
   }
@@ -234,6 +276,12 @@ class _LessonScreenState extends State<LessonScreen> {
         const SnackBar(content: Text("Failed to send comment")),
       );
     }
+  }
+
+  @override
+  void dispose() {
+    AudioService().resumeBgMusic();
+    super.dispose();
   }
 
   @override
@@ -519,22 +567,86 @@ class _AttachmentCard extends StatelessWidget {
   final Widget? iconWidget;
   final String label;
   final VoidCallback onTap;
-  final void Function(String)? onMenuSelected;
+  final String? format;
+  final Attachment attachment;
 
   const _AttachmentCard({
     this.icon,
     this.iconWidget,
     required this.label,
     required this.onTap,
-    this.onMenuSelected,
+    this.format,
+    required this.attachment,
   });
+
+  Future<void> _downloadAndSaveFile(BuildContext context) async {
+    try {
+      final existingDownload =
+          await DownloadsDatabase.instance.getDownloadByUrl(attachment.url);
+      if (existingDownload != null) {
+        _showSnackBar(context, 'File already downloaded!');
+        return;
+      }
+
+      _showSnackBar(context, 'Downloading ${attachment.name}...');
+      final response = await http.get(Uri.parse(attachment.url));
+      final directory = await getApplicationDocumentsDirectory();
+      final localPath =
+          '${directory.path}/${attachment.name.replaceAll(RegExp(r'[^\w\s\.-]'), '')}';
+      final file = File(localPath);
+      await file.writeAsBytes(response.bodyBytes);
+
+      await DownloadsDatabase.instance.insertDownload({
+        'name': attachment.name,
+        'url': attachment.url,
+        'localPath': localPath,
+      });
+
+      _showSnackBar(context, 'Download successfully!');
+    } catch (e) {
+      _showSnackBar(context, 'Download failed: $e');
+      debugPrint('Download failed: $e');
+    }
+  }
+
+  void _openFile(BuildContext context, String localPath) async {
+    try {
+      final file = File(localPath);
+      if (await file.exists()) {
+        if (attachment.type == 'pdf') {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => PdfViewerScreen(
+                  filePath: localPath, fileName: attachment.name),
+            ),
+          );
+        } else {
+          // You would need to handle other file types here, e.g., with an external viewer
+          _showSnackBar(context, 'File opened from local storage.');
+        }
+      } else {
+        _showSnackBar(context, 'Downloaded file not found.');
+      }
+    } catch (e) {
+      _showSnackBar(context, 'Could not open file: $e');
+    }
+  }
+
+  void _showSnackBar(BuildContext context, String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        height: 120,
+        height: 80,
         margin: const EdgeInsets.symmetric(vertical: 4),
         decoration: BoxDecoration(
           color: Colors.white,
@@ -548,53 +660,84 @@ class _AttachmentCard extends StatelessWidget {
             ),
           ],
         ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Expanded(
-              child: Center(
-                child: iconWidget ??
-                    Icon(icon, color: const Color(0xFFBF8C33), size: 40),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 4.0),
-              child: Row(
+        child: Padding(
+          padding: const EdgeInsets.all(12.0),
+          child: Row(
+            children: [
+              Column(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Expanded(
-                    child: ValueListenableBuilder<double>(
-                      valueListenable: FontSizeController.fontSize,
-                      builder: (context, fontSize, child) {
-                        return Text(
-                          label,
-                          style: TextStyle(
-                            fontSize: fontSize * 0.8,
-                            fontFamily: 'Aleo',
-                            letterSpacing: 1.5,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black,
-                          ),
-                          textAlign: TextAlign.center,
-                          overflow: TextOverflow.ellipsis,
-                          maxLines: 2,
-                        );
-                      },
-                    ),
-                  ),
-                  PopupMenuButton<String>(
-                    icon: const Icon(Icons.more_vert, color: Color(0xFFBF8C33)),
-                    onSelected: onMenuSelected,
-                    itemBuilder: (context) => [
-                      const PopupMenuItem(
-                        value: 'download',
-                        child: Text('Download'),
-                      ),
-                    ],
+                  Center(
+                    child: iconWidget ??
+                        Icon(icon, color: const Color(0xFFBF8C33), size: 40),
                   ),
                 ],
               ),
-            ),
-          ],
+              const SizedBox(width: 20.0),
+              Expanded(
+                child: ValueListenableBuilder<double>(
+                  valueListenable: FontSizeController.fontSize,
+                  builder: (context, fontSize, child) {
+                    return Text(
+                      label,
+                      style: TextStyle(
+                        fontSize: fontSize * 0.8,
+                        fontFamily: 'Aleo',
+                        letterSpacing: 1.5,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black,
+                      ),
+                      textAlign: TextAlign.start,
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: 1,
+                    );
+                  },
+                ),
+              ),
+              const SizedBox(width: 8.0),
+              PopupMenuButton<String>(
+                onSelected: (String result) async {
+                  if (result == 'Download') {
+                    await _downloadAndSaveFile(context);
+                  } else if (result == 'Open') {
+                    final download = await DownloadsDatabase.instance
+                        .getDownloadByUrl(attachment.url);
+                    if (download != null) {
+                      _openFile(context, download['localPath']);
+                    } else {
+                      _showSnackBar(context, 'File not downloaded yet.');
+                    }
+                  }
+                },
+                itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+                  const PopupMenuItem<String>(
+                    value: 'Download',
+                    child: Row(
+                      children: [
+                        Icon(Icons.download, size: 20),
+                        SizedBox(width: 8),
+                        Text('Download'),
+                      ],
+                    ),
+                  ),
+                  const PopupMenuItem<String>(
+                    value: 'Open',
+                    child: Row(
+                      children: [
+                        Icon(Icons.open_in_new, size: 20),
+                        SizedBox(width: 8),
+                        Text('Open'),
+                      ],
+                    ),
+                  ),
+                ],
+                icon: const Icon(
+                  Icons.more_vert,
+                  color: Color(0xFFBF8C33),
+                ),
+              )
+            ],
+          ),
         ),
       ),
     );

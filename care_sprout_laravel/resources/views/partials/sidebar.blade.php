@@ -14,6 +14,9 @@
             href="{{ route('lessons.home') }}">
             <i class="fas fa-book"></i> Lessons
         </a>
+        <a class="menu-item {{ request()->routeIs('studentList') ? 'active' : '' }}" href="{{ route('studentList') }}">
+            <i class="fas fa-chart-bar"></i> Student List
+        </a>
         <a class="menu-item {{ request()->routeIs('reports') ? 'active' : '' }}" href="{{ route('reports') }}">
             <i class="fas fa-chart-bar"></i> Reports
         </a>

@@ -1,5 +1,6 @@
 // ignore_for_file: use_build_context_synchronously
 
+import 'package:care_sprout/Helper/audio_service.dart';
 import 'package:care_sprout/Helper/global_font_size.dart';
 import 'package:care_sprout/Helper/rive_button_loader.dart';
 import 'package:care_sprout/home_screen.dart';
@@ -33,11 +34,28 @@ class _ProfileState extends State<Profile> {
   String phone = '';
   String email = '';
 
+  String _selectedAvatar = 'assets/avatars/default_avatar.jpg';
+
   @override
   void initState() {
     _loadRiveAssets();
     _fetchUserData();
+    _loadAvatar();
     super.initState();
+  }
+
+  void _loadAvatar() async {
+    final user = _auth.currentUser;
+    if (user != null) {
+      final doc = await _firestore.collection('users').doc(user.uid).get();
+      final data = doc.data();
+      if (data != null && data.containsKey('avatarPath')) {
+        setState(() {
+          _selectedAvatar =
+              data['avatarPath'];
+        });
+      }
+    }
   }
 
   Future<void> _loadRiveAssets() async {
@@ -65,6 +83,7 @@ class _ProfileState extends State<Profile> {
 
   void _onTap() {
     if (backClick != null) {
+      AudioService().playClickSound();
       backClick!.fire();
       debugPrint('Button Clicked!');
       Future.delayed(const Duration(milliseconds: 500), () {
@@ -106,6 +125,71 @@ class _ProfileState extends State<Profile> {
         _showEditDialog();
       });
     }
+  }
+
+  void _showAvatarPicker() {
+    final screenHeight = MediaQuery.of(context).size.height;
+
+    showModalBottomSheet(
+        context: context,
+        builder: (BuildContext context) {
+          return Container(
+            height: screenHeight * 0.4,
+            decoration: const BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+            ),
+            child: Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(12.0),
+                  child: Text(
+                    'Choose Your Avatar',
+                    style: Theme.of(context).textTheme.headlineSmall,
+                  ),
+                ),
+                const Divider(),
+                Expanded(
+                  child: GridView.builder(
+                    padding: const EdgeInsets.all(12.0),
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 4,
+                      crossAxisSpacing: 10,
+                      mainAxisSpacing: 10,
+                    ),
+                    itemCount: 8,
+                    itemBuilder: (context, index) {
+                      final avatarPath =
+                          'assets/avatars/avatar${index + 1}.png';
+                      return GestureDetector(
+                        onTap: () async {
+                          setState(() {
+                            _selectedAvatar = avatarPath;
+                          });
+                          final user = _auth.currentUser;
+                          if (user != null) {
+                            await _firestore
+                                .collection('users')
+                                .doc(user.uid)
+                                .update({
+                              'avatarPath': avatarPath,
+                            });
+                          }
+                          Navigator.pop(context);
+                        },
+                        child: CircleAvatar(
+                          radius: 48.0,
+                          backgroundImage: AssetImage(avatarPath),
+                        ),
+                      );
+                    },
+                  ),
+                )
+              ],
+            ),
+          );
+        });
   }
 
   void _showEditDialog() {
@@ -297,28 +381,32 @@ class _ProfileState extends State<Profile> {
                 Center(
                     child: Column(
                   children: [
-                    Stack(
-                      children: [
-                        const CircleAvatar(
-                          radius: 48.0,
-                        ),
-                        Positioned(
-                          bottom: 0,
-                          right: 0,
-                          child: Container(
-                            decoration: const BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: Colors.transparent,
-                            ),
-                            padding: const EdgeInsets.all(4),
-                            child: Image.asset(
-                              'assets/images/photoAdd.png',
-                              width: 30,
-                              height: 30,
+                    GestureDetector(
+                      onTap: _showAvatarPicker,
+                      child: Stack(
+                        children: [
+                          CircleAvatar(
+                            radius: 48.0,
+                            backgroundImage: AssetImage(_selectedAvatar),
+                          ),
+                          Positioned(
+                            bottom: 0,
+                            right: 0,
+                            child: Container(
+                              decoration: const BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: Colors.transparent,
+                              ),
+                              padding: const EdgeInsets.all(4),
+                              child: Image.asset(
+                                'assets/images/photoAdd.png',
+                                width: 30,
+                                height: 30,
+                              ),
                             ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                     const SizedBox(height: 16.0),
                     ValueListenableBuilder<double>(

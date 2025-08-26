@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PageController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\SettingsController;
+use App\Http\Controllers\YoutubeController;
 use App\Http\Middleware\StoreUserRole;
 
 // Main route
@@ -51,6 +52,9 @@ Route::get('/login', [PageController::class, 'showLogin'])->name('login');
 
     //Leaderboards
     Route::get('/leader', [PageController::class, 'leader'])->name('leader');
+
+    //Student List
+    Route::get('/studentList', [PageController::class, 'studentList'])->name('studentList');
 
     //Announcements
     Route::get('/announcement', [PageController::class, 'announcement'])->name('announcement');
@@ -100,3 +104,4 @@ Route::post('/logout-session', function () {
     session()->flush();
     return response()->json(['status' => 'ok']);
 });
+

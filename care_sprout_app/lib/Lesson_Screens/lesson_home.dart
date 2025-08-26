@@ -1,5 +1,6 @@
 // ignore_for_file: unnecessary_const, deprecated_member_use
 
+import 'package:care_sprout/Helper/audio_service.dart';
 import 'package:care_sprout/Helper/global_font_size.dart';
 import 'package:care_sprout/Helper/lesson_service.dart';
 import 'package:care_sprout/Lesson_Screens/join_class.dart';
@@ -49,6 +50,7 @@ class _LessonHomeState extends State<LessonHome> {
 
   void _onTap() {
     if (buttonClick != null) {
+      AudioService().playClickSound();
       buttonClick!.fire();
       debugPrint('Button Clicked!');
       Future.delayed(const Duration(milliseconds: 500), () {

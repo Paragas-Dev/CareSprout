@@ -3,6 +3,7 @@
 import 'dart:async';
 
 import 'package:care_sprout/Auth/login.dart';
+import 'package:care_sprout/Helper/audio_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:care_sprout/Helper/rive_button_loader.dart';
@@ -51,6 +52,7 @@ class _VerificationScreenState extends State<VerificationScreen> {
 
   void _onTap() {
     if (backClick != null) {
+      AudioService().playClickSound();
       backClick!.fire();
       debugPrint('Button Clicked!');
       Future.delayed(const Duration(milliseconds: 300), () {

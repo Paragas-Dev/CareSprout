@@ -2,6 +2,7 @@
 
 import 'package:care_sprout/Components/group_tile.dart';
 import 'package:care_sprout/Components/user_tile.dart';
+import 'package:care_sprout/Helper/audio_service.dart';
 import 'package:care_sprout/Helper/chat_service.dart';
 import 'package:care_sprout/Helper/rive_button_loader.dart';
 import 'package:care_sprout/Messaging/chat_message.dart';
@@ -57,6 +58,7 @@ class _ChatHomescreenState extends State<ChatHomescreen> {
 
   void _onTap() {
     if (backClick != null) {
+      AudioService().playClickSound();
       backClick!.fire();
       debugPrint('Button Clicked!');
       Future.delayed(const Duration(milliseconds: 500), () {

@@ -2,6 +2,10 @@
 
 import 'dart:async';
 import 'package:care_sprout/Achievement_Screens/lesson_achievement.dart';
+import 'package:care_sprout/Components/parent_verification.dart';
+import 'package:care_sprout/Components/unlock_content_dialog.dart';
+import 'package:care_sprout/Game/game_homescreen.dart';
+import 'package:care_sprout/Helper/audio_service.dart';
 import 'package:care_sprout/Helper/global_font_size.dart';
 import 'package:care_sprout/Lesson_Screens/lesson_home.dart';
 import 'package:care_sprout/Messaging/chat_homescreen.dart';
@@ -10,6 +14,7 @@ import 'package:care_sprout/settings.dart';
 import 'package:care_sprout/Announcement_Screens/announcements_page.dart';
 import 'package:cloud_firestore/cloud_firestore.dart' as cf;
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:rive/rive.dart' as rive;
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:care_sprout/Helper/rive_button_loader.dart';
@@ -30,6 +35,7 @@ class _HomeScreenState extends State<HomeScreen> {
       announcementClick,
       achievementClick,
       profileClick,
+      okClick,
       settingsClick;
   rive.StateMachineController? lessonController,
       gameController,
@@ -38,6 +44,7 @@ class _HomeScreenState extends State<HomeScreen> {
       announcementController,
       achievementController,
       profileController,
+      okController,
       settingsController;
   rive.Artboard? lessonArtboard,
       gameArtboard,
@@ -46,6 +53,7 @@ class _HomeScreenState extends State<HomeScreen> {
       announcementArtboard,
       achievementArtboard,
       profileArtboard,
+      okArtboard,
       settingsArtboard;
 
   bool _isMenuOpen = false;
@@ -60,106 +68,11 @@ class _HomeScreenState extends State<HomeScreen> {
     _loadRiveAssets();
     _startAutoScroll();
     _checkGuest();
-  }
 
-  void _checkGuest() async {
-    _isGuest = await isGuestUser();
-    setState(() {});
-  }
-
-  void _showGuestRestrictionDialog() {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Guest Access Restricted'),
-        content: const Text('Please sign in to access this feature.'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('OK'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _startAutoScroll() {
-    _autoScrollTimer?.cancel();
-    _autoScrollTimer = Timer.periodic(const Duration(seconds: 6), (timer) {
-      if (!mounted) return;
-      final pageCount = _pageController.positions.isNotEmpty
-          ? _pageController.positions.first.viewportDimension > 0
-              ? _pageController.positions.first.maxScrollExtent ~/
-                      _pageController.positions.first.viewportDimension +
-                  1
-              : 0
-          : 0;
-      if (pageCount == 0) return;
-      _currentPage++;
-      if (_currentPage >= pageCount) _currentPage = 0;
-      _pageController.animateToPage(
-        _currentPage,
-        duration: const Duration(milliseconds: 800),
-        curve: Curves.easeInOut,
-      );
-    });
-  }
-
-  @override
-  void dispose() {
-    _autoScrollTimer?.cancel();
-    _pageController.dispose();
-    super.dispose();
-  }
-
-  void _onLessonTap() {
-    if (lessonClick != null) {
-      lessonClick!.fire();
-      debugPrint('Button Clicked!');
-      Future.delayed(const Duration(milliseconds: 500), () {
-        if (mounted) {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => const LessonHome()),
-          );
-        }
-      });
-    }
-  }
-
-  void _onGameTap() {
-    if (gameClick != null) {
-      gameClick!.fire();
-      debugPrint('Button Clicked!');
-      Future.delayed(const Duration(milliseconds: 500), () {
-        if (mounted) {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => const HomeScreen()),
-          );
-        }
-      });
-    }
-  }
-
-  void _onMenuTap() {
-    if (menuClick != null) {
-      menuClick!.fire();
-      debugPrint('Button Clicked!');
-      Future.delayed(const Duration(milliseconds: 500), () {
-        if (mounted) {
-          setState(() {
-            _isMenuOpen = true;
-          });
-        }
-      });
-    }
-  }
-
-  void _closeMenu() {
-    setState(() {
-      _isMenuOpen = false;
-    });
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+    ]);
   }
 
   Future<void> _loadRiveAssets() async {
@@ -203,6 +116,11 @@ class _HomeScreenState extends State<HomeScreen> {
       stateMachineName: 'Settings Menu',
       triggerName: 'Settings Click',
     );
+    final ok = await loadRiveButton(
+      assetPath: 'assets/Rive_Files/ok_btn.riv',
+      stateMachineName: 'Ok Button',
+      triggerName: 'Btn Click',
+    );
     setState(() {
       lessonArtboard = lesson.artboard;
       lessonClick = lesson.trigger;
@@ -235,8 +153,228 @@ class _HomeScreenState extends State<HomeScreen> {
       settingsArtboard = settings.artboard;
       settingsClick = settings.trigger;
       settingsController = settings.controller;
+
+      okArtboard = ok.artboard;
+      okClick = ok.trigger;
+      okController = ok.controller;
     });
   }
+
+  void _checkGuest() async {
+    _isGuest = await isGuestUser();
+    setState(() {});
+  }
+
+  void _showGuestRestrictionDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Guest Access Restricted'),
+        content: const Text('Please sign in to access this feature.'),
+        actions: [
+          if (okArtboard != null)
+            GestureDetector(
+              onTap: () {
+                if (okClick != null) {
+                  AudioService().playClickSound();
+                  okClick!.fire();
+                  debugPrint('Button Clicked!');
+                  Future.delayed(const Duration(milliseconds: 500), () {
+                    if (mounted) {
+                      Navigator.of(context).pop();
+                    }
+                  });
+                }
+              },
+              child: SizedBox(
+                width: 50,
+                height: 50,
+                child: rive.Rive(
+                  artboard: okArtboard!,
+                  fit: BoxFit.fill,
+                ),
+              ),
+            )
+          else
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('OK'),
+            ),
+        ],
+      ),
+    );
+  }
+
+  void _startAutoScroll() {
+    _autoScrollTimer?.cancel();
+    _autoScrollTimer = Timer.periodic(const Duration(seconds: 6), (timer) {
+      if (!mounted) return;
+      final pageCount = _pageController.positions.isNotEmpty
+          ? _pageController.positions.first.viewportDimension > 0
+              ? _pageController.positions.first.maxScrollExtent ~/
+                      _pageController.positions.first.viewportDimension +
+                  1
+              : 0
+          : 0;
+      if (pageCount == 0) return;
+      _currentPage++;
+      if (_currentPage >= pageCount) _currentPage = 0;
+      _pageController.animateToPage(
+        _currentPage,
+        duration: const Duration(milliseconds: 800),
+        curve: Curves.easeInOut,
+      );
+    });
+  }
+
+  @override
+  void dispose() {
+    _autoScrollTimer?.cancel();
+    _pageController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _onLessonTap() async {
+    if (lessonClick != null) {
+      AudioService().playClickSound();
+      lessonClick!.fire();
+      debugPrint('Button Clicked!');
+
+      if (_isGuest) {
+        if (mounted) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const LessonHome()),
+          );
+        }
+        return;
+      }
+
+      final bool? isUnlocked = await showDialog<bool>(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => const UnlockContentDialog(),
+      );
+
+      if (isUnlocked == true) {
+        if (mounted) {
+          final bool? isParentVerified = await showDialog<bool>(
+            context: context,
+            barrierDismissible: false,
+            builder: (context) => const ParentVerification(),
+          );
+
+          if (isParentVerified == true) {
+            if (mounted) {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const LessonHome()),
+              );
+            }
+          }
+        }
+      }
+    }
+  }
+
+  void _onGameTap() {
+    if (gameClick != null) {
+      AudioService().playClickSound();
+      gameClick!.fire();
+      debugPrint('Button Clicked!');
+      Future.delayed(const Duration(milliseconds: 500), () async {
+        if (mounted) {
+          await SystemChrome.setPreferredOrientations([
+            DeviceOrientation.landscapeLeft,
+            DeviceOrientation.landscapeRight,
+          ]);
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const GameHomescreen()),
+          );
+        }
+      });
+    }
+  }
+
+  void _onMenuTap() {
+    if (menuClick != null) {
+      AudioService().playClickSound();
+      menuClick!.fire();
+      debugPrint('Button Clicked!');
+      Future.delayed(const Duration(milliseconds: 500), () {
+        if (mounted) {
+          setState(() {
+            _isMenuOpen = true;
+          });
+        }
+      });
+    }
+  }
+
+  void _closeMenu() {
+    setState(() {
+      _isMenuOpen = false;
+    });
+  }
+
+  Future<void> _onSidebarButtonTap(
+      rive.SMITrigger? trigger, Widget destinationPage) async {
+    if (_isGuest) {
+      if (destinationPage is Settings) {
+        if (mounted) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => destinationPage),
+          );
+        }
+        return;
+      } else {
+        _showGuestRestrictionDialog();
+        return;
+      }
+    }
+
+    if (trigger != null) {
+      AudioService().playClickSound();
+      trigger.fire();
+      debugPrint('Button Clicked!');
+
+      final bool? isUnlocked = await showDialog<bool>(
+        context: context,
+        builder: (context) => const UnlockContentDialog(),
+      );
+
+      if (isUnlocked == true) {
+        if (mounted) {
+          final bool? isParentVerified = await showDialog<bool>(
+            context: context,
+            barrierDismissible: false,
+            builder: (context) => const ParentVerification(),
+          );
+
+          if (isParentVerified == true) {
+            if (mounted) {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => destinationPage),
+              );
+            }
+          }
+        }
+      }
+    }
+  }
+
+  // Individual button tap functions using the new generic function
+  void _onMessageTap() =>
+      _onSidebarButtonTap(messageClick, const ChatHomescreen());
+  void _onAnnouncementTap() =>
+      _onSidebarButtonTap(announcementClick, const AnnouncementsPage());
+  void _onAchievementTap() =>
+      _onSidebarButtonTap(achievementClick, const LessonAchievement());
+  void _onProfileTap() => _onSidebarButtonTap(profileClick, const Profile());
+  void _onSettingsTap() => _onSidebarButtonTap(settingsClick, const Settings());
 
   @override
   Widget build(BuildContext context) {
@@ -707,51 +845,16 @@ class _HomeScreenState extends State<HomeScreen> {
                         // Rive Buttons
                         _SidebarRiveButton(
                           artboard: messageArtboard,
-                          onTap: () {
-                            if (_isGuest) {
-                              _showGuestRestrictionDialog();
-                            } else if (messageClick != null) {
-                              messageClick!.fire();
-                              debugPrint('Button Clicked!');
-                              Future.delayed(const Duration(milliseconds: 300),
-                                  () {
-                                if (mounted) {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) =>
-                                            const ChatHomescreen()),
-                                  );
-                                }
-                              });
-                            }
-                          },
+                          onTap: _onMessageTap,
                         ),
                         _SidebarRiveButton(
                           artboard: announcementArtboard,
-                          onTap: () {
-                            if (_isGuest) {
-                              _showGuestRestrictionDialog();
-                            } else if (announcementClick != null) {
-                              announcementClick!.fire();
-                              debugPrint('Button Clicked!');
-                              Future.delayed(const Duration(milliseconds: 300),
-                                  () {
-                                if (mounted) {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) =>
-                                            const AnnouncementsPage()),
-                                  );
-                                }
-                              });
-                            }
-                          },
+                          onTap: _onAnnouncementTap,
                         ),
                         _SidebarRiveButton(
                           artboard: achievementArtboard,
                           onTap: () {
+                            AudioService().playClickSound();
                             if (achievementClick != null) {
                               achievementClick!.fire();
                               debugPrint('Button Clicked!');
@@ -771,26 +874,12 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                         _SidebarRiveButton(
                           artboard: profileArtboard,
-                          onTap: () {
-                            if (profileClick != null) {
-                              profileClick!.fire();
-                              debugPrint('Button Clicked!');
-                              Future.delayed(const Duration(milliseconds: 300),
-                                  () {
-                                if (mounted) {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) => const Profile()),
-                                  );
-                                }
-                              });
-                            }
-                          },
+                          onTap: _onProfileTap,
                         ),
                         _SidebarRiveButton(
                           artboard: settingsArtboard,
                           onTap: () {
+                            AudioService().playClickSound();
                             if (settingsClick != null) {
                               settingsClick!.fire();
                               debugPrint('Button Clicked!');
@@ -804,9 +893,6 @@ class _HomeScreenState extends State<HomeScreen> {
                                   );
                                 }
                               });
-                            } else {
-                              debugPrint(
-                                  'Settings Button Clicked! settingsClick IS NULL.');
                             }
                           },
                         ),

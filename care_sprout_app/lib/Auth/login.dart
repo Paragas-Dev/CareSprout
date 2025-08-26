@@ -1,6 +1,7 @@
 // ignore_for_file: use_build_context_synchronously
 
 import 'package:care_sprout/Auth/sign_up.dart';
+import 'package:care_sprout/Helper/audio_service.dart';
 import 'package:care_sprout/home_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart' as firestore;
 import 'package:firebase_auth/firebase_auth.dart';
@@ -119,6 +120,7 @@ class _LoginState extends State<Login> {
   void _onSignInTap() async {
     if (_formKey.currentState?.validate() != true) return;
     if (buttonClick != null) {
+      AudioService().playClickSound();
       buttonClick!.fire();
       debugPrint('Button Clicked!');
 

@@ -53,6 +53,13 @@ dependencies:
   flutter_scrolling_fab_animated: ^0.1.5
   smooth_page_indicator: ^1.2.1
   youtube_player_flutter: ^9.1.1
+  flame_audio: ^2.11.8
+  audioplayers: ^6.5.0
+  flame: ^1.30.1
+  synchronized: ^3.4.0
+  pdfx: ^2.9.2
+  syncfusion_flutter_pdfviewer: ^30.2.6
+  sqflite: ^2.4.2
 
 dev_dependencies:
   flutter_test:
@@ -81,6 +88,8 @@ flutter:
     - assets/images/
     - assets/Rive_Files/
     - assets/bg_files/
+    - assets/audio/
+    - assets/avatars/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

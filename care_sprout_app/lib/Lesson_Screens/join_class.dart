@@ -1,3 +1,4 @@
+import 'package:care_sprout/Helper/audio_service.dart';
 import 'package:flutter/material.dart';
 import 'package:care_sprout/Helper/join_class_service.dart';
 
@@ -74,6 +75,7 @@ class _JoinClassState extends State<JoinClass> {
                   children: [
                     GestureDetector(
                       onTap: () {
+                        AudioService().playClickSound();
                         Navigator.of(context).pop();
                         Navigator.of(context).pop();
                       },

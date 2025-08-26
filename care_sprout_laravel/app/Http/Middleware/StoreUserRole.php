@@ -20,7 +20,7 @@ class StoreUserRole
         if (Auth::check()) {
 
             $user = Auth::user();
-            
+
             $firebase = (new Factory)->withServiceAccount(config('firebase.credentials_file'));
             $firestore = $firebase->createFirestore();
             $db = $firestore->database();

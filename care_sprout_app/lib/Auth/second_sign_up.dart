@@ -1,6 +1,7 @@
 // ignore_for_file: use_build_context_synchronously
 
 import 'package:care_sprout/Auth/verification_screen.dart';
+import 'package:care_sprout/Helper/audio_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:care_sprout/Helper/rive_button_loader.dart';
@@ -89,6 +90,7 @@ class _SecondSignUpState extends State<SecondSignUp> {
 
   void _onTap() {
     if (backClick != null) {
+      AudioService().playClickSound();
       backClick!.fire();
       debugPrint('Button Clicked!');
       Future.delayed(const Duration(milliseconds: 300), () {
@@ -115,6 +117,7 @@ class _SecondSignUpState extends State<SecondSignUp> {
       return;
     }
     if (signupBtnClick != null) {
+      AudioService().playClickSound();
       signupBtnClick!.fire();
       debugPrint('Button Clicked!');
       try {
