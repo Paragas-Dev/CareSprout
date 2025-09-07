@@ -15,11 +15,13 @@
 
     <div class="container">
         <div class="title">
-            <img src="{{ asset('images/name.png') }}" alt="CareSprout Logo" style="max-width: 100%; width: 200px; height: auto;" />
+            <img src="{{ asset('images/name.png') }}" alt="CareSprout Logo"
+                style="max-width: 100%; width: 200px; height: auto;" />
         </div>
         <div class="subtitle">Log In</div>
 
         <form id="loginForm">
+            @csrf
             <div class="message" id="message"></div>
 
             <input type="email" id="email" placeholder="Email" required /><br />
@@ -31,7 +33,7 @@
             </div>
             <br />
             <div class="links"><a href="#">Forgot password</a></div>
-            <input type="submit" value="Log in"/>
+            <input type="submit" value="Log in" />
         </form>
     </div>
 
@@ -46,7 +48,8 @@
 
     <script src="{{ asset('js/firebase-config.js') }}"></script>
     <script>
-        window.addEventListener('firebaseReady', function() {
+        window.addEventListener('firebaseReady', function(e) {
+            e.preventDefault();
             const auth = window.auth;
             const db = window.db;
 
@@ -126,14 +129,16 @@
                     message.style.color = 'red';
 
                     if (error.code === 'not-admin') {
-                        message.textContent = "Access denied. Your account is not registered as an admin.";
+                        message.textContent =
+                            "Access denied. Your account is not registered as an admin.";
                     } else if (
                         error.code === 'auth/user-not-found' ||
                         error.code === 'auth/wrong-password' ||
                         error.code === 'auth/invalid-email' ||
                         error.code === 'auth/invalid-credential' ||
                         error.code === 'auth/invalid-login-credentials' ||
-                        (typeof error.message === 'string' && error.message.includes('INVALID_LOGIN_CREDENTIALS'))
+                        (typeof error.message === 'string' && error.message.includes(
+                            'INVALID_LOGIN_CREDENTIALS'))
                     ) {
                         message.textContent = "Invalid email or password.";
                     } else {
@@ -141,7 +146,7 @@
                     }
                 }
             });
-        });
+        }, false);
     </script>
 
 </body>

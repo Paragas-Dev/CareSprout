@@ -258,6 +258,16 @@ class LessonService extends ChangeNotifier {
     }
   }
 
+  Stream<List<Lesson>> getPreCreatedLessonsStream() {
+    return _firestore
+        .collection('pre-created_lessons')
+        .orderBy('createdAt', descending: true)
+        .snapshots()
+        .map((snapshot) {
+      return snapshot.docs.map((doc) => Lesson.fromFirestore(doc)).toList();
+    });
+  }
+
   // Convert hex color string to Color
   Color hexToColor(String hexString) {
     final buffer = StringBuffer();

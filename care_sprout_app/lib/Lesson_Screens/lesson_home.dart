@@ -6,6 +6,7 @@ import 'package:care_sprout/Helper/lesson_service.dart';
 import 'package:care_sprout/Lesson_Screens/join_class.dart';
 import 'package:care_sprout/Lesson_Screens/subject_screen.dart';
 import 'package:care_sprout/home_screen.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:rive/rive.dart' as rive;
@@ -149,66 +150,22 @@ class _LessonHomeState extends State<LessonHome> {
                     color: Color(0xFFBF8C33),
                   ),
                   const SizedBox(height: 16.0),
-                  StreamBuilder<List<Lesson>>(
-                    stream: _lessonService.getLessonsStream(),
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        return const Center(
-                          child: CircularProgressIndicator(
-                            color: Color(0xFFBF8C33),
-                          ),
-                        );
-                      }
-
-                      if (snapshot.hasError) {
-                        return Center(
-                          child: Text(
-                            'Error loading lessons: ${snapshot.error}',
-                            style: const TextStyle(color: Colors.red),
-                          ),
-                        );
-                      }
-
-                      List<Lesson> lessons = snapshot.data ?? [];
-
-                      if (lessons.isEmpty) {
-                        return const Center(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(
-                                Icons.school_outlined,
-                                size: 64,
-                                color: Color(0xFFBF8C33),
-                              ),
-                              SizedBox(height: 16),
-                              Text(
-                                'No lessons available',
-                                style: TextStyle(
-                                  fontSize: 18,
-                                  color: Color(0xFFBF8C33),
-                                  fontFamily: 'Aleo',
-                                ),
-                              ),
-                            ],
-                          ),
-                        );
-                      }
+                  StreamBuilder<User?>(
+                    stream: FirebaseAuth.instance.authStateChanges(),
+                    builder: (context, authSnapshot) {
+                      final bool isAuthenticated =
+                          authSnapshot.hasData && authSnapshot.data != null;
                       return Column(
-                        children: lessons
-                            .map((lesson) => _LessonProgressCard(
-                                  lesson: lesson,
-                                  onTap: () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) =>
-                                            SubjectScreen(lessonId: lesson.id),
-                                      ),
-                                    );
-                                  },
-                                ))
-                            .toList(),
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          if (isAuthenticated)
+                            _buildLessonsSection(
+                              stream: _lessonService.getLessonsStream(),
+                            ),
+                          _buildLessonsSection(
+                            stream: _lessonService.getPreCreatedLessonsStream(),
+                          ),
+                        ],
                       );
                     },
                   ),
@@ -268,6 +225,68 @@ class _LessonHomeState extends State<LessonHome> {
         ),
         floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       ),
+    );
+  }
+
+  Widget _buildLessonsSection(
+      {required Stream<List<Lesson>> stream}) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        StreamBuilder<List<Lesson>>(
+          stream: stream,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(
+                child: CircularProgressIndicator(
+                  color: Color(0xFFBF8C33),
+                ),
+              );
+            }
+
+            if (snapshot.hasError) {
+              return Center(
+                child: Text(
+                  'Error loading lessons: ${snapshot.error}',
+                  style: const TextStyle(color: Colors.red),
+                ),
+              );
+            }
+
+            List<Lesson> lessons = snapshot.data ?? [];
+
+            // if (lessons.isEmpty) {
+            //   return const Center(
+            //     child: Text(
+            //       'No lessons available',
+            //       style: TextStyle(
+            //         fontSize: 18,
+            //         color: Color(0xFFBF8C33),
+            //         fontFamily: 'Aleo',
+            //       ),
+            //     ),
+            //   );
+            // }
+
+            return Column(
+              children: lessons
+                  .map((lesson) => _LessonProgressCard(
+                        lesson: lesson,
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  SubjectScreen(lessonId: lesson.id),
+                            ),
+                          );
+                        },
+                      ))
+                  .toList(),
+            );
+          },
+        ),
+      ],
     );
   }
 }
