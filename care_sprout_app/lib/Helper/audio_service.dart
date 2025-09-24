@@ -1,3 +1,5 @@
+// ignore_for_file: unused_field
+
 import 'package:flame_audio/flame_audio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/foundation.dart';

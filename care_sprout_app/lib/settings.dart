@@ -1,5 +1,6 @@
 import 'package:care_sprout/Auth/login.dart';
 import 'package:care_sprout/Helper/audio_service.dart';
+import 'package:care_sprout/Services/progress_manager.dart';
 import 'package:care_sprout/home_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
@@ -21,10 +22,21 @@ class _SettingsState extends State<Settings> {
   rive.StateMachineController? backController, logoutController;
   rive.Artboard? backArtboard, logoutArtboard;
 
+  // Added a ValueNotifier for the tutorial toggle
+  final ValueNotifier<bool> tutorialEnabled = ValueNotifier(true);
+
   @override
   void initState() {
     _loadRiveAssets();
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    backController?.dispose();
+    logoutController?.dispose();
+    tutorialEnabled.dispose();
+    super.dispose();
   }
 
   Future<void> _loadRiveAssets() async {
@@ -67,6 +79,12 @@ class _SettingsState extends State<Settings> {
     }
   }
 
+  // resetting player progress
+  void _onResetProgressTap() {
+    AudioService().playClickSound();
+    _showResetProgressWarning();
+  }
+
   void _onLogoutTap() async {
     bool isGuest = await isGuestUser();
 
@@ -105,6 +123,55 @@ class _SettingsState extends State<Settings> {
         debugPrint('Error signing out: $e');
       }
     }
+  }
+
+  // warning dialog for resetting progress
+  void _showResetProgressWarning() {
+    showDialog(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Reset Progress?'),
+        content: const Text(
+          'Are you sure you want to reset all your game progress? '
+          'This action cannot be undone.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () async {
+              Navigator.pop(dialogContext); 
+              // wait until after the dialog is closed to show snackbar
+              await Future.delayed(const Duration(milliseconds: 200));
+
+              try {
+                await ProgressManager.resetProgress();
+
+                if (!mounted) return;
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('All progress has been reset!'),
+                  ),
+                );
+              } catch (e) {
+                if (!mounted) return;
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('Error resetting progress: $e'),
+                  ),
+                );
+              }
+            },
+            child: const Text(
+              'Reset',
+              style: TextStyle(color: Colors.red),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   void _showGuestWarning() {
@@ -456,6 +523,43 @@ class _SettingsState extends State<Settings> {
                           },
                         )
                       ],
+                    ),
+                    const SizedBox(height: 16.0),
+                    Center(
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          foregroundColor: Colors.white,
+                          backgroundColor:
+                              const Color(0xFFBF8C33), // Text color
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 24, vertical: 12),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(30),
+                          ),
+                          elevation: 5,
+                        ),
+                        onPressed: _onResetProgressTap,
+                        child: ValueListenableBuilder<double>(
+                          valueListenable: FontSizeController.fontSize,
+                          builder: (context, fontSize, child) {
+                            return Text(
+                              'Reset Progress',
+                              style: TextStyle(
+                                fontSize: fontSize * 0.75,
+                                fontFamily: 'Luckiest Guy',
+                                letterSpacing: 1.2,
+                                shadows: const [
+                                  Shadow(
+                                    color: Color(0xFF34732F),
+                                    offset: Offset(1, 1),
+                                    blurRadius: 2,
+                                  ),
+                                ],
+                              ),
+                            );
+                          },
+                        ),
+                      ),
                     ),
                     const SizedBox(height: 16.0),
                     Center(

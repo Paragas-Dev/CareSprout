@@ -1,4 +1,4 @@
-// ignore_for_file: use_build_context_synchronously
+// ignore_for_file: use_build_context_synchronously, unused_local_variable
 
 import 'package:care_sprout/Auth/sign_up.dart';
 import 'package:care_sprout/Helper/audio_service.dart';

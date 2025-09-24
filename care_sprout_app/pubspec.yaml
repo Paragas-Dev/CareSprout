@@ -86,10 +86,24 @@ flutter:
   assets:
     - assets/
     - assets/images/
+    - assets/images/alphabet/
     - assets/Rive_Files/
     - assets/bg_files/
     - assets/audio/
     - assets/avatars/
+    - assets/Intervention/
+    - assets/Intervention/bg/
+    - assets/Intervention/brushing_teeth/
+    - assets/Intervention/dressed/
+    - assets/Intervention/foods/
+    - assets/Intervention/grocery/
+    - assets/Intervention/handwashing/
+    - assets/Intervention/laundry/
+    - assets/Intervention/money/
+    - assets/Intervention/recycle/
+    - assets/Intervention/room/
+    - assets/Intervention/shoes/
+    - assets/Intervention/street/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
