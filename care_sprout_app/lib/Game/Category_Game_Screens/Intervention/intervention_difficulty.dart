@@ -1,3 +1,5 @@
+import 'dart:math';
+
 class InterventionDifficulty {
   final int minSteps;
   final int maxSteps;
@@ -12,6 +14,21 @@ class InterventionDifficulty {
     required this.distractions,
     this.timeLimitSeconds,
   });
+
+  // Steps to use (e.g., Brushing Teeth).
+  int stepsForTotal(int total) => min(maxSteps + 1, max(minSteps, total));
+
+  // Pairs to use (e.g., Getting Dressed). Same as stepsForTotal for clarity.
+  int pairsForTotal(int totalPairs) => stepsForTotal(totalPairs);
+
+  // Decoys to add given available decoys in assets.
+  // Most games do distractions * 2.
+  int decoysForAvailable(int available) => min(available, distractions * 2);
+
+  // For tap/spot games: ensure enough taps; keeps at least baseSpots.
+  int tapsForBase(int baseSpots) => max(baseSpots, maxSteps);
+
+  bool get hasTimer => timeLimitSeconds != null;
 }
 
 // Level bands:

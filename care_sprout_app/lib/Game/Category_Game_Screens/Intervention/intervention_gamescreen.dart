@@ -4,7 +4,6 @@ import 'package:care_sprout/Game/Category_Game_Screens/Intervention/intervention
 import 'package:care_sprout/Game/Category_Game_Screens/Intervention/mini_game.dart';
 import 'package:care_sprout/Helper/audio_service.dart';
 import 'package:care_sprout/Helper/rive_button_loader.dart';
-import 'package:care_sprout/Services/progress_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:rive/rive.dart' as rive;
